@@ -36,7 +36,7 @@ async function getVendorData(vendorId: string): Promise<VendorWithMenu | null> {
   return { ...data, categories: categoriesWithItems } as VendorWithMenu;
 }
 
-export default async function VendorPage({ params }: { params: { vendorId: string } }) {
+export default async function VendorPage({ params }: any) {
   const vendor = await getVendorData(params.vendorId);
 
   if (!vendor) {
