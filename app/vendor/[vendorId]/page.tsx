@@ -2,6 +2,12 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { MenuClient } from './menu-client';
 
+type Props = {
+  params: {
+    vendorId: string;
+  };
+};
+
 // Keep the types separate or import them if they are defined elsewhere
 type MenuItem = {
   id: string;
@@ -58,7 +64,7 @@ async function getVendorData(vendorId: string): Promise<Vendor | null> {
   return { ...data, categories: categoriesWithItems };
 }
 
-export default async function VendorPage({ params }: { params: { vendorId: string } }) {
+export default async function VendorPage({ params }: Props) {
   const vendor = await getVendorData(params.vendorId);
 
   if (!vendor) {
