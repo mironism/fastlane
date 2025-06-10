@@ -1,9 +1,11 @@
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
-    request,
+    request: {
+      headers: request.headers,
+    },
   })
 
   const supabase = createServerClient(
@@ -11,46 +13,47 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return request.cookies.getAll()
+        get(name: string) {
+          return request.cookies.get(name)?.value
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            request.cookies.set(name, value)
-          })
+        set(name: string, value: string, options: CookieOptions) {
+          // If the cookie is updated, update the request cookies and re-create the response
+          request.cookies.set({ name, value, ...options })
           response = NextResponse.next({
-            request,
+            request: {
+              headers: request.headers,
+            },
           })
-          cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options)
+          response.cookies.set({ name, value, ...options })
+        },
+        remove(name: string, options: CookieOptions) {
+          // If the cookie is removed, update the request cookies and re-create the response
+          request.cookies.set({ name, value: '', ...options })
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
           })
+          response.cookies.set({ name, value: '', ...options })
         },
       },
     }
   )
 
-  // This function must be called to refresh the session cookie.
-  // It will also validate the session on the server.
+  // This will refresh the session cookie if needed
   await supabase.auth.getUser()
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
+  const { data: { session } } = await supabase.auth.getSession()
   const { pathname } = request.nextUrl
 
   // If user is logged in and tries to access /auth, redirect to /admin
   if (session && pathname === '/auth') {
-    const url = request.nextUrl.clone()
-    url.pathname = '/admin'
-    return NextResponse.redirect(url)
+    return NextResponse.redirect(new URL('/admin', request.url))
   }
 
   // Protect all routes under /admin
   if (!session && pathname.startsWith('/admin')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/auth'
-    return NextResponse.redirect(url)
+    return NextResponse.redirect(new URL('/auth', request.url))
   }
 
   return response
@@ -66,6 +69,5 @@ export const config = {
      * Feel free to modify this pattern to include more paths.
      */
     '/((?!_next/static|_next/image|favicon.ico).*)',
-    '/admin/:path*',
   ],
-} 
+}
