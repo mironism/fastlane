@@ -13,14 +13,12 @@ export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createClient();
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
-    setMessage(null);
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -38,7 +36,6 @@ export default function AuthPage() {
   const handleSignUp = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
-    setMessage(null);
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -133,7 +130,6 @@ export default function AuthPage() {
                   />
                 </div>
                 {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-                {message && <p className="text-sm font-medium text-green-600">{message}</p>}
                 <Button type="submit" className="w-full">
                   Sign Up
                 </Button>

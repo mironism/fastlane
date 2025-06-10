@@ -12,31 +12,9 @@ import { Button } from '@/components/ui/button';
 import { ShoppingCartIcon, PlusCircle } from 'lucide-react';
 import { useCartStore } from '@/hooks/use-cart-store';
 import { ShoppingCart } from '@/components/cart/shopping-cart';
+import { VendorWithMenu, Category, MenuItem } from '@/lib/types';
 
-// Keep the types from before
-type MenuItem = {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  image_url: string;
-};
-
-type Category = {
-  id: string;
-  name: string;
-  menu_items: MenuItem[];
-};
-
-type Vendor = {
-  id: string;
-  name: string;
-  description: string;
-  profile_picture_url: string;
-  categories: Category[];
-};
-
-export function MenuClient({ vendor }: { vendor: Vendor }) {
+export function MenuClient({ vendor }: { vendor: VendorWithMenu }) {
   const [isMounted, setIsMounted] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const addItemToCart = useCartStore((state) => state.addItem);
@@ -57,13 +35,13 @@ export function MenuClient({ vendor }: { vendor: Vendor }) {
                 <div className="relative h-8 w-8 rounded-full">
                     <Image
                         src={vendor.profile_picture_url || '/default-avatar.png'}
-                        alt={`${vendor.name} profile picture`}
+                        alt={`${vendor.name || 'Vendor'} profile picture`}
                         fill
                         className="rounded-full object-cover"
                         sizes="32px"
                     />
                 </div>
-                <h1 className="text-xl font-bold truncate">{vendor.name}</h1>
+                <h1 className="text-xl font-bold truncate">{vendor.name || 'Vendor Menu'}</h1>
             </div>
             <Button variant="ghost" size="icon" className="relative" onClick={() => setIsCartOpen(true)}>
               <ShoppingCartIcon className="h-6 w-6" />
@@ -81,7 +59,7 @@ export function MenuClient({ vendor }: { vendor: Vendor }) {
 
         {/* Menu Section */}
         <main className="mt-8">
-          {vendor.categories.map((category: Category) => (
+          {vendor.categories.map((category) => (
             <section key={category.id} className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">{category.name}</h2>
               <div className="grid gap-4">

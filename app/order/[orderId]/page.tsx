@@ -5,28 +5,49 @@ import { QRCodeCanvas } from 'qrcode.react';
 import { createClient } from '@/lib/supabase/client';
 import { notFound, useParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Order } from '@/lib/types';
+
+function OrderConfirmationSkeleton() {
+    return (
+        <div className="container mx-auto max-w-md p-4 flex justify-center items-center min-h-screen">
+            <Card className="w-full text-center">
+                <CardHeader>
+                    <Skeleton className="h-8 w-3/4 mx-auto" />
+                    <Skeleton className="h-4 w-1/2 mx-auto mt-2" />
+                </CardHeader>
+                <CardContent className="flex justify-center p-8">
+                    <Skeleton className="h-64 w-64" />
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
 
 export default function OrderConfirmationPage() {
+  const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isValidOrder, setIsValidOrder] = useState(false);
   const supabase = createClient();
   const params = useParams();
   const orderId = params.orderId as string;
 
   useEffect(() => {
     const checkOrder = async () => {
-      if (!orderId) return;
+      if (!orderId) {
+        setLoading(false);
+        return;
+      };
 
       const { data, error } = await supabase
         .from('orders')
-        .select('id')
+        .select('*')
         .eq('id', orderId)
         .single();
       
       if (error || !data) {
-        setIsValidOrder(false);
+        setOrder(null);
       } else {
-        setIsValidOrder(true);
+        setOrder(data);
       }
       setLoading(false);
     };
@@ -34,10 +55,10 @@ export default function OrderConfirmationPage() {
   }, [orderId, supabase]);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Verifying order...</div>;
+    return <OrderConfirmationSkeleton />;
   }
 
-  if (!isValidOrder) {
+  if (!order) {
     return notFound();
   }
 
@@ -52,7 +73,7 @@ export default function OrderConfirmationPage() {
         </CardHeader>
         <CardContent className="flex justify-center p-8">
           <QRCodeCanvas
-            value={orderId}
+            value={order.id}
             size={256}
             level={"H"}
             includeMargin={true}

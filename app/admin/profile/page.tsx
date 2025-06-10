@@ -1,144 +1,31 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { toast } from 'sonner'
 import { User, Pencil } from 'lucide-react'
-
-// Define the type for our vendor data
-type Vendor = {
-  id: string
-  name: string
-  description: string
-  location: string
-  profile_picture_url: string
-  user_id: string
-}
+import { useVendorProfile } from '@/hooks/use-vendor-profile'
 
 export default function ProfilePage() {
-  const router = useRouter()
-  const supabase = createClient()
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const {
+    name,
+    setName,
+    description,
+    setDescription,
+    location,
+    setLocation,
+    profilePicturePreview,
+    isLoading,
+    isSaving,
+    fileInputRef,
+    handleImageClick,
+    handleFileChange,
+    handleSubmit
+  } = useVendorProfile();
 
-  const [vendor, setVendor] = useState<Vendor | null>(null)
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [location, setLocation] = useState('')
-  const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null)
-  const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
-
-  useEffect(() => {
-    const fetchVendorData = async () => {
-      setIsLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        toast.error('You must be logged in to view this page.')
-        router.push('/auth')
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('vendors')
-        .select('*')
-        .eq('user_id', user.id)
-        .single()
-
-      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-        toast.error('Failed to fetch vendor data.')
-        console.error(error)
-      } else if (data) {
-        setVendor(data)
-        setName(data.name || '')
-        setDescription(data.description || '')
-        setLocation(data.location || '')
-        setProfilePicturePreview(data.profile_picture_url || null)
-      }
-      setIsLoading(false)
-    }
-
-    fetchVendorData()
-  }, [router, supabase])
-
-  const handleImageClick = () => {
-    fileInputRef.current?.click()
-  }
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      setProfilePictureFile(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setProfilePicturePreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    setIsSaving(true)
-
-    if (!vendor) {
-      toast.error("Vendor data not found. Cannot update.")
-      setIsSaving(false)
-      return
-    }
-
-    let profilePictureUrl = vendor.profile_picture_url
-
-    // 1. Handle file upload if a new file is selected
-    if (profilePictureFile) {
-      const filePath = `${vendor.user_id}/${Date.now()}_${profilePictureFile.name}`
-      const { error: uploadError } = await supabase.storage
-        .from('media')
-        .upload(filePath, profilePictureFile, {
-            cacheControl: '3600',
-            upsert: false
-        })
-
-      if (uploadError) {
-        toast.error('Failed to upload profile picture.')
-        console.error(uploadError)
-        setIsSaving(false)
-        return
-      }
-
-      const { data: urlData } = supabase.storage.from('media').getPublicUrl(filePath)
-      profilePictureUrl = urlData.publicUrl
-    }
-
-    // 2. Update the vendor data in the database
-    const { error: updateError } = await supabase
-      .from('vendors')
-      .update({
-        name,
-        description,
-        location,
-        profile_picture_url: profilePictureUrl,
-      })
-      .eq('id', vendor.id)
-    
-    if (updateError) {
-      toast.error('Failed to update profile.')
-      console.error(updateError)
-    } else {
-      toast.success('Profile updated successfully!')
-      // Refresh the page data to show the new profile picture URL
-      router.refresh()
-    }
-
-    setIsSaving(false)
-  }
 
   if (isLoading) {
     return <div>Loading profile...</div>
@@ -171,8 +58,8 @@ export default function ProfilePage() {
               ) : (
                 <User className="h-12 w-12 text-muted-foreground" />
               )}
-              <div className="absolute inset-0 rounded-full flex items-center justify-center">
-                <Pencil className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Pencil className="h-6 w-6 text-white" />
               </div>
             </div>
             <Input
@@ -181,6 +68,7 @@ export default function ProfilePage() {
               ref={fileInputRef}
               onChange={handleFileChange}
               className="hidden"
+              accept="image/*"
             />
           </div>
           <div className="space-y-2">

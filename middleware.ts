@@ -53,13 +53,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Also redirect the root path to the auth page if not authenticated
-  if (!session && pathname === '/') {
-    const url = request.nextUrl.clone()
-    url.pathname = '/auth'
-    return NextResponse.redirect(url)
-  }
-
   return response
 }
 

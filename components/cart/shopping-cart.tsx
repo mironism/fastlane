@@ -1,9 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import { useCartStore, CartItem } from '@/hooks/use-cart-store'
+import { useCartStore } from '@/hooks/use-cart-store'
 import {
   Sheet,
   SheetContent,
@@ -14,8 +12,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Minus, Plus, Trash2 } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
-import { toast } from 'sonner'
+import { useCheckout } from '@/hooks/use-checkout'
 
 export function ShoppingCart({
   open,
@@ -26,45 +23,8 @@ export function ShoppingCart({
   onOpenChange: (open: boolean) => void,
   vendorId: string
 }) {
-  const { items, removeItem, updateQuantity, totalPrice, clearCart } = useCartStore()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const router = useRouter()
-  const supabase = createClient()
-
-  const handleCheckout = async () => {
-    setIsSubmitting(true)
-    
-    // 1. Structure the order details
-    const orderDetails = items.map(item => ({
-      menu_item_id: item.id,
-      quantity: item.quantity,
-      name: item.title,
-      price_at_purchase: item.price,
-    }));
-    
-    // 2. Insert into the database
-    const { data, error } = await supabase
-      .from('orders')
-      .insert({
-        vendor_id: vendorId,
-        order_details: orderDetails,
-        total_price: totalPrice(),
-        is_paid: true, // Simulate successful payment
-      })
-      .select('id')
-      .single()
-
-    if (error) {
-      toast.error('Failed to create order. Please try again.')
-      console.error(error)
-      setIsSubmitting(false)
-      return
-    }
-
-    // 3. Clear the cart and redirect
-    clearCart()
-    router.push(`/order/${data.id}`)
-  }
+  const { items, removeItem, updateQuantity, totalPrice } = useCartStore()
+  const { isSubmitting, handleCheckout } = useCheckout();
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -77,7 +37,7 @@ export function ShoppingCart({
           <>
             <div className="flex-1 overflow-y-auto">
               <ul className="divide-y">
-                {items.map((item: CartItem) => (
+                {items.map((item) => (
                   <li key={item.id} className="flex items-center gap-4 py-4">
                     <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md">
                       <Image
@@ -130,7 +90,7 @@ export function ShoppingCart({
                   <span>Total</span>
                   <span>${totalPrice().toFixed(2)}</span>
                 </div>
-                <Button className="w-full" onClick={handleCheckout} disabled={isSubmitting}>
+                <Button className="w-full" onClick={() => handleCheckout(vendorId)} disabled={isSubmitting}>
                   {isSubmitting ? 'Processing...' : 'Proceed to Checkout'}
                 </Button>
               </div>

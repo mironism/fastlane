@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
@@ -11,7 +10,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import {
   AlertDialog,
@@ -27,68 +25,29 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Pencil, PlusCircle, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-
-type Category = {
-  id: string
-  name: string
-  vendor_id: string
-}
+import { useCategories } from '@/hooks/use-categories'
+import { Category } from '@/lib/types'
 
 export function CategoryManager() {
-  const supabase = createClient()
-  const [categories, setCategories] = useState<Category[]>([])
-  const [loading, setLoading] = useState(true)
+  const { categories, loading, addCategory, updateCategory, deleteCategory } = useCategories();
   
-  // State for the create/edit dialog
   const [dialogOpen, setDialogOpen] = useState(false)
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null)
   const [categoryName, setCategoryName] = useState('')
 
-  // State for the delete confirmation dialog
   const [alertDialogOpen, setAlertDialogOpen] = useState(false)
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null)
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      setLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        toast.error('You must be logged in.')
-        return
-      }
-
-      const { data: vendorData, error: vendorError } = await supabase
-        .from('vendors')
-        .select('id')
-        .eq('user_id', user.id)
-        .single()
-      
-      if (vendorError || !vendorData) {
-        toast.error('Could not find your vendor profile.')
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('vendor_id', vendorData.id)
-        .order('name', { ascending: true })
-
-      if (error) {
-        toast.error('Failed to fetch categories.')
-        console.error(error)
-      } else {
-        setCategories(data)
-      }
-      setLoading(false)
-    }
-    fetchCategories()
-  }, [supabase])
 
   const openDialog = (category: Category | null) => {
     setCurrentCategory(category)
     setCategoryName(category?.name || '')
     setDialogOpen(true)
+  }
+
+  const closeDialog = () => {
+    setDialogOpen(false);
+    setCurrentCategory(null);
+    setCategoryName('');
   }
 
   const openDeleteConfirm = (category: Category) => {
@@ -102,58 +61,20 @@ export function CategoryManager() {
       return
     }
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    const { data: vendorData } = await supabase.from('vendors').select('id').eq('user_id', user.id).single()
-    if (!vendorData) return
-
     if (currentCategory) {
-      // Update existing category
-      const { error } = await supabase
-        .from('categories')
-        .update({ name: categoryName })
-        .eq('id', currentCategory.id)
-      
-      if (error) {
-        toast.error('Failed to update category.')
-      } else {
-        toast.success('Category updated!')
-        setCategories(categories.map(c => c.id === currentCategory.id ? { ...c, name: categoryName } : c))
-      }
+      await updateCategory(currentCategory.id, categoryName.trim());
     } else {
-      // Create new category
-      const { data, error } = await supabase
-        .from('categories')
-        .insert({ name: categoryName, vendor_id: vendorData.id })
-        .select()
-        .single()
-      
-      if (error) {
-        toast.error('Failed to create category.')
-      } else {
-        toast.success('Category created!')
-        setCategories([...categories, data])
-      }
+      await addCategory(categoryName.trim());
     }
-    setDialogOpen(false)
+    closeDialog();
   }
 
   const handleDelete = async () => {
     if (!categoryToDelete) return
 
-    const { error } = await supabase
-      .from('categories')
-      .delete()
-      .eq('id', categoryToDelete.id)
-
-    if (error) {
-      toast.error('Failed to delete category.')
-    } else {
-      toast.success('Category deleted.')
-      setCategories(categories.filter(c => c.id !== categoryToDelete.id))
-    }
+    await deleteCategory(categoryToDelete.id);
     setAlertDialogOpen(false)
+    setCategoryToDelete(null);
   }
 
   return (
@@ -215,7 +136,7 @@ export function CategoryManager() {
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={closeDialog}>Cancel</Button>
             <Button type="submit" onClick={handleSave}>Save</Button>
           </DialogFooter>
         </DialogContent>

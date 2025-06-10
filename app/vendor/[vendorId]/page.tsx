@@ -1,31 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { MenuClient } from './menu-client';
+import { VendorWithMenu } from '@/lib/types';
 
-// Keep the types separate or import them if they are defined elsewhere
-type MenuItem = {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  image_url: string;
-};
-
-type Category = {
-  id: string;
-  name: string;
-  menu_items: MenuItem[];
-};
-
-type Vendor = {
-  id: string;
-  name: string;
-  description: string;
-  profile_picture_url: string;
-  categories: Category[];
-};
-
-async function getVendorData(vendorId: string): Promise<Vendor | null> {
+async function getVendorData(vendorId: string): Promise<VendorWithMenu | null> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -55,11 +33,11 @@ async function getVendorData(vendorId: string): Promise<Vendor | null> {
   }
 
   const categoriesWithItems = data.categories.filter(category => category.menu_items.length > 0);
-  return { ...data, categories: categoriesWithItems };
+  return { ...data, categories: categoriesWithItems } as VendorWithMenu;
 }
 
-export default async function VendorPage(props: any) {
-  const vendor = await getVendorData(props.params.vendorId);
+export default async function VendorPage({ params }: { params: { vendorId: string } }) {
+  const vendor = await getVendorData(params.vendorId);
 
   if (!vendor) {
     notFound();

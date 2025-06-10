@@ -1,19 +1,15 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { CartItem } from '@/lib/types';
 
-// Define the shape of a single item in the cart
-export type CartItem = {
-  id: string;
-  title: string;
-  price: number;
-  image_url: string | null;
-  quantity: number;
-};
+// Define the shape of a menu item that can be added to the cart
+// This is essentially a subset of the full MenuItem type.
+export type AddToCartItem = Omit<CartItem, 'quantity'>;
 
 // Define the shape of the entire cart state
 type CartState = {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, 'quantity'>) => void;
+  addItem: (item: AddToCartItem) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, newQuantity: number) => void;
   clearCart: () => void;
