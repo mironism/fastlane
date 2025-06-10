@@ -29,6 +29,10 @@ export async function middleware(request: NextRequest) {
     }
   )
 
+  // This function must be called to refresh the session cookie.
+  // It will also validate the session on the server.
+  await supabase.auth.getUser()
+
   const {
     data: { session },
   } = await supabase.auth.getSession()
