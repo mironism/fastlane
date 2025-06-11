@@ -118,9 +118,9 @@ export function MenuItemManager() {
                     {items.map(item => (
                       <li key={item.id} className="flex items-center justify-between p-3">
                         <div className="flex items-center gap-4">
-                          <div className="relative h-12 w-12 bg-muted rounded-md flex-shrink-0">
+                          <div className="relative h-12 w-12 bg-muted rounded-sm flex-shrink-0">
                             {item.image_url ? (
-                              <Image src={item.image_url} alt={item.title} fill className="rounded-md object-cover" sizes="48px" />
+                              <Image src={item.image_url} alt={item.title} fill className="rounded-sm object-cover" sizes="48px" />
                             ) : (
                               <div className="flex h-full w-full items-center justify-center">
                                 <ImageIcon className="h-6 w-6 text-muted-foreground"/>
@@ -156,7 +156,7 @@ export function MenuItemManager() {
               <DialogDescription>Fill in the details for your menu item here.</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-                <div className="relative w-full h-48 bg-muted rounded-md cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                <div className="relative w-full h-48 bg-muted rounded-sm cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                     {itemImagePreview ? <Image src={itemImagePreview} alt="Item preview" fill className="object-cover" sizes="100vw" /> : <div className="flex h-full w-full items-center justify-center"><ImageIcon className="h-16 w-16 text-muted-foreground"/></div>}
                     <Input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
                 </div>

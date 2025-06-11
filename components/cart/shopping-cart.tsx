@@ -39,7 +39,7 @@ export function ShoppingCart({
               <ul className="divide-y">
                 {items.map((item) => (
                   <li key={item.id} className="flex items-center gap-4 py-4">
-                    <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md">
+                    <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-sm">
                       <Image
                         src={item.image_url || '/placeholder.svg'}
                         alt={item.title}

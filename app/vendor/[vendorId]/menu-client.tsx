@@ -77,7 +77,7 @@ export function MenuClient({ vendor }: { vendor: VendorWithMenu }) {
                               src={item.image_url}
                               alt={item.title}
                               fill
-                              className="object-cover rounded-md"
+                              className="object-cover rounded-sm"
                               sizes="96px"
                             />
                           </div>
