@@ -43,7 +43,7 @@ export function useOrders() {
 
       const { data, error } = await supabase
         .from('orders')
-        .select('*, order_details(*)') // Assuming order_details is a view or relation; if it is jsonb, '*, order_details' is fine
+        .select('*, order_details')
         .eq('vendor_id', vendor.id)
         .eq('is_paid', true)
         .order('created_at', { ascending: false });
@@ -99,6 +99,12 @@ export function useOrders() {
   }, [supabase, vendorId]);
   
   const fulfillOrder = async (orderId: string) => {
+    // Optimistic UI update
+    const originalOrders = allOrders;
+    setAllOrders(currentOrders => 
+      currentOrders.map(o => o.id === orderId ? { ...o, is_fulfilled: true } : o)
+    );
+
     const { error } = await supabase
       .from('orders')
       .update({ is_fulfilled: true })
@@ -106,13 +112,19 @@ export function useOrders() {
 
     if (error) {
       toast.error('Failed to update order.');
+      setAllOrders(originalOrders); // Revert on error
     } else {
       toast.success(`Order fulfilled!`);
-      // UI will update via realtime subscription
     }
   };
   
   const unfulfillOrder = async (orderId: string) => {
+    // Optimistic UI update
+    const originalOrders = allOrders;
+    setAllOrders(currentOrders =>
+      currentOrders.map(o => o.id === orderId ? { ...o, is_fulfilled: false } : o)
+    );
+
     const { error } = await supabase
       .from('orders')
       .update({ is_fulfilled: false })
@@ -120,9 +132,9 @@ export function useOrders() {
 
     if (error) {
       toast.error('Failed to update order.');
+      setAllOrders(originalOrders); // Revert on error
     } else {
       toast.info(`Order marked as unfulfilled.`);
-      // UI will update via realtime subscription
     }
   };
 

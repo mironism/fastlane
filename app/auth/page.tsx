@@ -16,11 +16,14 @@ export default function AuthPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const handleLogin = async (event: React.FormEvent) => {
+  const handleAuth = async (
+    event: React.FormEvent,
+    action: 'signInWithPassword' | 'signUp'
+  ) => {
     event.preventDefault();
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth[action]({
       email,
       password,
     });
@@ -32,28 +35,20 @@ export default function AuthPage() {
       router.refresh();
     }
   };
-  
-  const handleSignUp = async (event: React.FormEvent) => {
-    event.preventDefault();
+
+  const handleTabChange = () => {
+    setEmail('');
+    setPassword('');
     setError(null);
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
-    } else {
-      // User is signed up and logged in. Redirect them to the admin portal.
-      router.push('/admin');
-      router.refresh();
-    }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <Tabs defaultValue="login" className="w-full max-w-sm">
+      <Tabs
+        defaultValue="login"
+        className="w-full max-w-sm"
+        onValueChange={handleTabChange}
+      >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Login</TabsTrigger>
           <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -61,19 +56,22 @@ export default function AuthPage() {
         <TabsContent value="login">
           <Card>
             <CardHeader>
-              <CardTitle>Vendor Login</CardTitle>
+              <CardTitle>Welcome Back</CardTitle>
               <CardDescription>
-                Enter your credentials to access the vendor portal.
+              Enter your email and password to sign in
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleLogin} className="space-y-4">
+              <form
+                onSubmit={(e) => handleAuth(e, 'signInWithPassword')}
+                className="space-y-4"
+              >
                 <div className="space-y-2">
                   <Label htmlFor="login-email">Email</Label>
                   <Input
                     id="login-email"
                     type="email"
-                    placeholder="m@example.com"
+                    placeholder="your@email.com"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -102,17 +100,20 @@ export default function AuthPage() {
             <CardHeader>
               <CardTitle>Create Account</CardTitle>
               <CardDescription>
-                Enter your email and password to sign up.
+                Enter your email and password to sign up
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSignUp} className="space-y-4">
+              <form
+                onSubmit={(e) => handleAuth(e, 'signUp')}
+                className="space-y-4"
+              >
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
                   <Input
                     id="signup-email"
                     type="email"
-                    placeholder="m@example.com"
+                    placeholder="your@email.com"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}

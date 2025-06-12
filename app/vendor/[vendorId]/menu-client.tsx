@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ShoppingCartIcon, PlusCircle } from 'lucide-react';
 import { useCartStore } from '@/hooks/use-cart-store';
-import { ShoppingCart } from '@/components/cart/shopping-cart';
+import { ShoppingCart } from '@/components/orders/shopping-cart';
 import { VendorWithMenu, Category, MenuItem } from '@/lib/types';
 
 export function MenuClient({ vendor }: { vendor: VendorWithMenu }) {

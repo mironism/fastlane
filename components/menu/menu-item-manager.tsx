@@ -14,6 +14,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Pencil, PlusCircle, Trash2, ImageIcon } from 'lucide-react'
 import { useMenuItems } from '@/hooks/use-menu-items'
 import { MenuItem } from '@/lib/types'
+import { Skeleton } from '../ui/skeleton'
+import { cn } from '@/lib/utils'
 
 export function MenuItemManager() {
   const { loading, categories, groupedItems, addItem, updateItem, deleteItem } = useMenuItems();
@@ -98,16 +100,41 @@ export function MenuItemManager() {
         <div className="flex justify-between items-center">
           <div>
             <CardTitle>Menu Items</CardTitle>
-            <p className="text-muted-foreground text-sm mt-1">Manage your products here.</p>
+            <p className="text-muted-foreground text-sm mt-1">Manage your products here</p>
           </div>
           <Button onClick={() => openDialog(null)}>
-            <PlusCircle className="mr-2 h-4 w-4" /> Add Item
+            <PlusCircle className="mr-2 h-4 w-4" /> Add Menu Item
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         {loading ? (
-          <p className="text-center p-4">Loading...</p>
+          <div className="space-y-6">
+            {[...Array(2)].map((_, i) => (
+              <div key={i}>
+                <Skeleton className="h-6 w-1/3 mb-2" />
+                <div className="border rounded-lg">
+                  <div className="divide-y">
+                    {[...Array(3)].map((_, j) => (
+                      <div key={j} className="flex items-center justify-between p-3">
+                        <div className="flex items-center gap-4">
+                          <Skeleton className="h-12 w-12 rounded-sm" />
+                          <div>
+                            <Skeleton className="h-5 w-24 mb-1" />
+                            <Skeleton className="h-4 w-16" />
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                           <Skeleton className="h-8 w-8" />
+                           <Skeleton className="h-8 w-8" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : groupedItems.length > 0 ? (
           <div className="space-y-6">
             {groupedItems.map(({ categoryName, items }) => (
@@ -153,11 +180,11 @@ export function MenuItemManager() {
           <form onSubmit={handleSave}>
             <DialogHeader>
               <DialogTitle>{currentItem?.id ? 'Edit Menu Item' : 'Add New Menu Item'}</DialogTitle>
-              <DialogDescription>Fill in the details for your menu item here.</DialogDescription>
+              <DialogDescription>Fill in the details for your menu item here</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
                 <div className="relative w-full h-48 bg-muted rounded-sm cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                    {itemImagePreview ? <Image src={itemImagePreview} alt="Item preview" fill className="object-cover" sizes="100vw" /> : <div className="flex h-full w-full items-center justify-center"><ImageIcon className="h-16 w-16 text-muted-foreground"/></div>}
+                    {itemImagePreview ? <Image src={itemImagePreview} alt="Item preview" fill className="object-cover rounded-sm" sizes="100vw" /> : <div className="flex h-full w-full items-center justify-center"><ImageIcon className="h-16 w-16 text-muted-foreground"/></div>}
                     <Input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
                 </div>
                 <Input placeholder="Title" value={currentItem?.title || ''} onChange={e => setCurrentItem({...currentItem, title: e.target.value})} required/>
@@ -171,7 +198,7 @@ export function MenuItemManager() {
                   }}
                   required
                 >
-                    <SelectTrigger className={validationError === 'category_id' ? 'border-destructive' : ''}><SelectValue placeholder="Select a category" /></SelectTrigger>
+                    <SelectTrigger className={cn("w-full", validationError === 'category_id' ? 'border-destructive' : '')}><SelectValue placeholder="Select a category" /></SelectTrigger>
                     <SelectContent>
                         {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                     </SelectContent>

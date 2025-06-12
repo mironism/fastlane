@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { User, Pencil } from 'lucide-react'
 import { useVendorProfile } from '@/hooks/use-vendor-profile'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function ProfilePage() {
   const {
@@ -28,19 +29,39 @@ export default function ProfilePage() {
 
 
   if (isLoading) {
-    return <div>Loading profile...</div>
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <Skeleton className="h-7 w-48" />
+          </CardTitle>
+          <CardDescription>
+            <Skeleton className="h-4 w-full max-w-lg" />
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <Skeleton className="h-24 w-24 rounded-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-32" />
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Vendor Profile</CardTitle>
+        <CardTitle>Profile</CardTitle>
         <CardDescription>
-          This is how your business appears to customers. Update your information below.
+          This is how your business appears to customers
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <Label>Profile Picture</Label>
             <div
@@ -95,7 +116,7 @@ export default function ProfilePage() {
               id="location"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="e.g., Downtown, Waterfront"
+              placeholder="Downtown, Waterfront"
             />
           </div>
           <Button type="submit" disabled={isSaving}>

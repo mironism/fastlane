@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, FormEvent } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,11 +27,13 @@ import { Pencil, PlusCircle, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useCategories } from '@/hooks/use-categories'
 import { Category } from '@/lib/types'
+import { Skeleton } from '../ui/skeleton'
 
 export function CategoryManager() {
   const { categories, loading, addCategory, updateCategory, deleteCategory } = useCategories();
   
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null)
   const [categoryName, setCategoryName] = useState('')
 
@@ -48,6 +50,7 @@ export function CategoryManager() {
     setDialogOpen(false);
     setCurrentCategory(null);
     setCategoryName('');
+    setIsSaving(false);
   }
 
   const openDeleteConfirm = (category: Category) => {
@@ -55,11 +58,14 @@ export function CategoryManager() {
     setAlertDialogOpen(true)
   }
 
-  const handleSave = async () => {
+  const handleSave = async (e: FormEvent) => {
+    e.preventDefault();
     if (!categoryName.trim()) {
       toast.error('Category name cannot be empty.')
       return
     }
+
+    setIsSaving(true);
 
     if (currentCategory) {
       await updateCategory(currentCategory.id, categoryName.trim());
@@ -83,7 +89,7 @@ export function CategoryManager() {
         <div className="flex justify-between items-center">
           <div>
             <CardTitle>Categories</CardTitle>
-            <p className="text-muted-foreground text-sm mt-1">Group your menu items into categories.</p>
+            <p className="text-muted-foreground text-sm mt-1">Group your menu items into categories</p>
           </div>
           <Button onClick={() => openDialog(null)}>
             <PlusCircle className="mr-2 h-4 w-4" /> Add Category
@@ -92,7 +98,19 @@ export function CategoryManager() {
       </CardHeader>
       <CardContent>
         {loading ? (
-          <p className="p-4 text-center">Loading categories...</p>
+          <div className="border rounded-lg">
+            <div className="divide-y">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center justify-between p-4">
+                  <Skeleton className="h-5 w-32" />
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-8 w-8" />
+                    <Skeleton className="h-8 w-8" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         ) : categories.length > 0 ? (
           <div className="border rounded-lg">
             <ul className="divide-y">
@@ -117,28 +135,30 @@ export function CategoryManager() {
       </CardContent>
       {/* Dialog for Create/Edit */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{currentCategory ? 'Edit Category' : 'Create New Category'}</DialogTitle>
-            <DialogDescription>
-              {currentCategory ? 'Rename your category here.' : 'Enter the name for the new category.'}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">Name</Label>
+        <DialogContent className="sm:max-w-[425px]">
+          <form onSubmit={handleSave}>
+            <DialogHeader>
+              <DialogTitle>{currentCategory ? 'Edit Category' : 'Create New Category'}</DialogTitle>
+              <DialogDescription>
+                {currentCategory ? 'Rename your category here' : 'Enter the name for the new category'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
               <Input
                 id="name"
                 value={categoryName}
                 onChange={(e) => setCategoryName(e.target.value)}
-                className="col-span-3"
+                placeholder="Category Name"
+                required
               />
             </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={closeDialog}>Cancel</Button>
-            <Button type="submit" onClick={handleSave}>Save</Button>
-          </DialogFooter>
+            <DialogFooter>
+              <Button type="button" variant="secondary" onClick={closeDialog}>Cancel</Button>
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? 'Saving...' : 'Save'}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
       
