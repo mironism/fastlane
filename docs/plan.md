@@ -84,9 +84,9 @@ This document breaks down the development of the QuickSip MVP into a series of p
     - [ ] Integrate Stripe Elements into the checkout page for card entry.
     - [ ] On the client, after the Stripe payment is confirmed, create the final record in the `orders` table in Supabase. The `order_details` JSON should be a snapshot of the cart contents.
 
-- [✅] **3.4. Order Confirmation & QR Code**
+- [✅] **3.4. Order Confirmation**
     - [✅] After the order record is saved, transition the UI to a confirmation page.
-    - [✅] Generate and display a QR code containing the unique `order.id` from the newly created database record.
+    - [✅] Display order details including order number, items purchased, fulfillment status, and total price.
 
 ---
 

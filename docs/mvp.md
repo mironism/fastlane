@@ -99,7 +99,7 @@ A set of public-facing, mobile-first pages.
 * **5.3. Order & Checkout:**
     * Customers tap items to add them to a simple cart. The cart interface allows for adjusting item **quantities** (e.g., via `+` and `-` buttons), consolidating multiple orders of the same item into a single line item with an updated quantity.
     * The checkout process uses Stripe Elements, with Apple Pay and standard card entry enabled.
-* **5.4. Receive Payment Proof:** Upon successful payment, the page displays a unique QR code containing the `order.id`.
+* **5.4. Receive Payment Proof:** Upon successful payment, the page displays order details including order number, items purchased, fulfillment status, and total price.
 * **5.5. `order_details` JSON Structure:** The JSON stored in the database for each order will be an array of objects, capturing the exact state of the cart at the moment of purchase, including quantities.
     ```json
     [

@@ -30,7 +30,7 @@ The application is divided into two primary experiences built within a single Ne
 | **Digital Menu** | A categorized menu of items that vendors can manage. | VEN-2, VEN-3, CUST-2 |
 | **Shopping Cart** | A simple interface for customers to build and manage their order. | CUST-3, CUST-4 |
 | **Payment Processing** | Secure checkout using Stripe. | CUST-5, VEN-4 |
-| **Order QR Code** | A unique QR code generated for the customer as proof of payment. | CUST-6 |
+| **Order Details** | Order confirmation page showing order number, items, and fulfillment status. | CUST-6 |
 | **Vendor Portal** | A secure, password-protected area for vendors to manage their system. | VEN-5, VEN-6 |
 | **Order Verification** | A tool for vendors to scan customer QR codes and confirm payment. | VEN-7, CUST-7 |
 
@@ -51,9 +51,9 @@ The application is divided into two primary experiences built within a single Ne
 -   **CUST-5: Paying for the Order**
     -   As a customer, I want to pay for my order quickly and securely using my credit card or Apple Pay, so I don't have to wait for a server.
 -   **CUST-6: Receiving Proof of Payment**
-    -   As a customer, after I pay, I want to receive a unique QR code on my screen, so I have proof of purchase to show the bartender.
+    -   As a customer, after I pay, I want to see my order details including order number and items, so I have proof of purchase to show the bartender.
 -   **CUST-7: Redeeming the Order**
-    -   As a customer, I want to show my QR code to the bartender to be scanned, so I can receive my order.
+    -   As a customer, I want to show my order number and details to the bartender, so I can receive my order.
 
 #### Vendor (VEN) Stories
 
