@@ -17,6 +17,7 @@ import { MenuItem } from '@/lib/types'
 import { Skeleton } from '../ui/skeleton'
 import { cn } from '@/lib/utils'
 import { EmptyState } from '../ui/empty-state'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 export function MenuItemManager() {
   const { loading, categories, groupedItems, addItem, updateItem, deleteItem } = useMenuItems();
@@ -103,9 +104,24 @@ export function MenuItemManager() {
             <CardTitle>Menu Items</CardTitle>
             <p className="text-muted-foreground text-sm mt-1">Manage your products here</p>
           </div>
-          <Button onClick={() => openDialog(null)}>
-            <PlusCircle className="mr-2 h-4 w-4" /> Add Menu Item
-          </Button>
+          {categories.length === 0 ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={0}>
+                  <Button disabled>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add Menu Item
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Create categories first before adding menu items</p>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button onClick={() => openDialog(null)}>
+              <PlusCircle className="mr-2 h-4 w-4" /> Add Menu Item
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent>
