@@ -16,6 +16,7 @@ import { useMenuItems } from '@/hooks/use-menu-items'
 import { MenuItem } from '@/lib/types'
 import { Skeleton } from '../ui/skeleton'
 import { cn } from '@/lib/utils'
+import { EmptyState } from '../ui/empty-state'
 
 export function MenuItemManager() {
   const { loading, categories, groupedItems, addItem, updateItem, deleteItem } = useMenuItems();
@@ -171,7 +172,7 @@ export function MenuItemManager() {
             ))}
           </div>
         ) : (
-          <p className="text-center text-muted-foreground py-8">No menu items yet. Add one to get started!</p>
+          <EmptyState message="No menu items yet. Add one to get started!" />
         )}
       </CardContent>
       

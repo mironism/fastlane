@@ -28,6 +28,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useCategories } from '@/hooks/use-categories'
 import { Category } from '@/lib/types'
 import { Skeleton } from '../ui/skeleton'
+import { EmptyState } from '../ui/empty-state'
 
 export function CategoryManager() {
   const { categories, loading, addCategory, updateCategory, deleteCategory } = useCategories();
@@ -130,7 +131,7 @@ export function CategoryManager() {
             </ul>
           </div>
         ) : (
-          <p className="p-4 text-center text-muted-foreground">No categories found. Add one to get started!</p>
+          <EmptyState message="No categories yet. Add one to get started!" />
         )}
       </CardContent>
       {/* Dialog for Create/Edit */}

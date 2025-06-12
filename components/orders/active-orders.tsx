@@ -6,13 +6,14 @@ import { useOrders } from '@/hooks/use-orders'
 import { Order } from '@/lib/types'
 import { OrderCard } from './order-card'
 import { Skeleton } from '../ui/skeleton'
+import { EmptyState } from '../ui/empty-state'
 
 export function ActiveOrders() {
   const { loading, unfulfilledOrders, fulfillOrder } = useOrders();
 
   const renderOrderList = (orders: Order[]) => (
-    <div className="border rounded-lg">
-      {orders.length > 0 ? (
+    orders.length > 0 ? (
+      <div className="border rounded-lg">
         <ul className="divide-y">
           {orders.map(order => (
             <OrderCard 
@@ -26,8 +27,8 @@ export function ActiveOrders() {
             />
           ))}
         </ul>
-      ) : <p className="text-center text-muted-foreground p-8">No active orders</p>}
-    </div>
+      </div>
+    ) : <EmptyState message="No active orders. Orders will appear here automatically." />
   );
 
   return (
