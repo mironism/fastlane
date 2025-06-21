@@ -47,8 +47,8 @@ export function useVendor(vendorId: string) {
         setError(true);
       } else {
         const transformedCategories = data.categories
-          .filter(category => category.activities.length > 0)
-          .map(category => ({
+          .filter((category: any) => category.activities.length > 0)
+          .map((category: any) => ({
             ...category,
             activities: category.activities
           }));
