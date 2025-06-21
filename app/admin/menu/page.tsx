@@ -1,25 +1,20 @@
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
-import { CategoryManager } from "@/components/menu/category-manager"
-import { MenuItemManager } from "@/components/menu/menu-item-manager"
+import { CategoryManager } from '@/components/menu/category-manager';
+import { MenuItemManager } from '@/components/menu/menu-item-manager';
 
-export default function MenuPage() {
+export default function ActivitiesPage() {
   return (
-    <Tabs defaultValue="items">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="items" className="cursor-pointer">Menu Items</TabsTrigger>
-        <TabsTrigger value="categories" className="cursor-pointer">Categories</TabsTrigger>
-      </TabsList>
-      <TabsContent value="items" className="mt-4">
-        <MenuItemManager />
-      </TabsContent>
-      <TabsContent value="categories" className="mt-4">
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">Activities Management</h1>
+        <p className="text-muted-foreground">
+          Manage your beach activities, categories, and pricing
+        </p>
+      </div>
+      
+      <div className="grid gap-6">
         <CategoryManager />
-      </TabsContent>
-    </Tabs>
+        <MenuItemManager />
+      </div>
+    </div>
   );
 } 

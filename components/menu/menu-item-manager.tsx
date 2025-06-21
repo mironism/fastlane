@@ -11,29 +11,29 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Pencil, PlusCircle, Trash2, ImageIcon } from 'lucide-react'
-import { useMenuItems } from '@/hooks/use-menu-items'
-import { MenuItem } from '@/lib/types'
+import { Pencil, PlusCircle, Trash2, ImageIcon, Clock, Users, MapPin } from 'lucide-react'
+import { useActivities } from '@/hooks/use-activities'
+import { Activity } from '@/lib/types'
 import { Skeleton } from '../ui/skeleton'
 import { cn } from '@/lib/utils'
 import { EmptyState } from '../ui/empty-state'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 export function MenuItemManager() {
-  const { loading, categories, groupedItems, addItem, updateItem, deleteItem } = useMenuItems();
+  const { loading, categories, groupedItems, addItem, updateItem, deleteItem } = useActivities();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Dialog states
   const [dialogOpen, setDialogOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [currentItem, setCurrentItem] = useState<Partial<MenuItem> | null>(null)
+  const [currentItem, setCurrentItem] = useState<Partial<Activity> | null>(null)
   const [itemImageFile, setItemImageFile] = useState<File | null>(null)
   const [itemImagePreview, setItemImagePreview] = useState<string | null>(null)
   const [validationError, setValidationError] = useState<string | null>(null)
 
   // Delete dialog state
   const [alertDialogOpen, setAlertDialogOpen] = useState(false)
-  const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null)
+  const [itemToDelete, setItemToDelete] = useState<Activity | null>(null)
 
   const closeDialog = () => {
     setDialogOpen(false);
@@ -44,12 +44,19 @@ export function MenuItemManager() {
     setValidationError(null);
   }
 
-  const openDialog = (item: MenuItem | null) => {
+  const openDialog = (item: Activity | null) => {
     if (item) {
       setCurrentItem(item);
       setItemImagePreview(item.image_url);
     } else {
-      setCurrentItem({ title: '', description: '', price: 0, category_id: '' });
+      setCurrentItem({ 
+        title: '', 
+        description: '', 
+        price: 0, 
+        category_id: '', 
+        duration_minutes: 60,
+        max_participants: 4 
+      });
       setItemImagePreview(null);
     }
     setItemImageFile(null);
@@ -73,7 +80,7 @@ export function MenuItemManager() {
 
     setValidationError(null)
     if (!currentItem.category_id) {
-      toast.error('Please select a category for the menu item.')
+      toast.error('Please select a category for the activity.')
       setValidationError('category_id')
       return
     }
@@ -101,25 +108,25 @@ export function MenuItemManager() {
       <CardHeader>
         <div className="flex justify-between items-center">
           <div>
-            <CardTitle>Menu Items</CardTitle>
-            <p className="text-muted-foreground text-sm mt-1">Manage your products here</p>
+            <CardTitle>Beach Activities</CardTitle>
+            <p className="text-muted-foreground text-sm mt-1">Manage your activities and experiences</p>
           </div>
           {categories.length === 0 ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <span tabIndex={0}>
                   <Button disabled>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Menu Item
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add Activity
                   </Button>
                 </span>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Create categories first before adding menu items</p>
+                <p>Create categories first before adding activities</p>
               </TooltipContent>
             </Tooltip>
           ) : (
             <Button onClick={() => openDialog(null)}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Menu Item
+              <PlusCircle className="mr-2 h-4 w-4" /> Add Activity
             </Button>
           )}
         </div>
@@ -171,9 +178,29 @@ export function MenuItemManager() {
                               </div>
                             )}
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <div className="font-medium">{item.title}</div>
                             <div className="text-sm text-muted-foreground">${item.price.toFixed(2)}</div>
+                            <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                              {item.duration_minutes && (
+                                <div className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  <span>{item.duration_minutes}min</span>
+                                </div>
+                              )}
+                              {item.max_participants && (
+                                <div className="flex items-center gap-1">
+                                  <Users className="h-3 w-3" />
+                                  <span>Max {item.max_participants}</span>
+                                </div>
+                              )}
+                              {item.meeting_point && (
+                                <div className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" />
+                                  <span className="truncate max-w-20">{item.meeting_point}</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -188,52 +215,144 @@ export function MenuItemManager() {
             ))}
           </div>
         ) : (
-          <EmptyState message="No menu items yet. Add one to get started!" />
+          <EmptyState message="No activities yet. Add one to get started!" />
         )}
       </CardContent>
       
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
           <form onSubmit={handleSave}>
             <DialogHeader>
-              <DialogTitle>{currentItem?.id ? 'Edit Menu Item' : 'Add New Menu Item'}</DialogTitle>
-              <DialogDescription>Fill in the details for your menu item here</DialogDescription>
+              <DialogTitle>{currentItem?.id ? 'Edit Activity' : 'Add New Activity'}</DialogTitle>
+              <DialogDescription>Fill in the details for your beach activity</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
                 <div className="relative w-full h-48 bg-muted rounded-sm cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                    {itemImagePreview ? <Image src={itemImagePreview} alt="Item preview" fill className="object-cover rounded-sm" sizes="100vw" /> : <div className="flex h-full w-full items-center justify-center"><ImageIcon className="h-16 w-16 text-muted-foreground"/></div>}
+                    {itemImagePreview ? <Image src={itemImagePreview} alt="Activity preview" fill className="object-cover rounded-sm" sizes="100vw" /> : <div className="flex h-full w-full items-center justify-center"><ImageIcon className="h-16 w-16 text-muted-foreground"/></div>}
                     <Input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
                 </div>
-                <Input placeholder="Title" value={currentItem?.title || ''} onChange={e => setCurrentItem({...currentItem, title: e.target.value})} required/>
-                <Textarea placeholder="Description" value={currentItem?.description || ''} onChange={e => setCurrentItem({...currentItem, description: e.target.value})} />
-                <Input type="number" placeholder="Price" value={currentItem?.price || ''} onChange={e => setCurrentItem({...currentItem, price: parseFloat(e.target.value) || 0})} required/>
-                <Select
-                  value={currentItem?.category_id || ''}
-                  onValueChange={value => {
-                    setCurrentItem({...currentItem, category_id: value})
-                    setValidationError(null)
-                  }}
-                  required
-                >
-                    <SelectTrigger className={cn("w-full", validationError === 'category_id' ? 'border-destructive' : '')}><SelectValue placeholder="Select a category" /></SelectTrigger>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="title">Activity Name *</Label>
+                  <Input 
+                    id="title"
+                    placeholder="e.g., Jet Ski Adventure" 
+                    value={currentItem?.title || ''} 
+                    onChange={e => setCurrentItem({...currentItem, title: e.target.value})} 
+                    required
+                  />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea 
+                    id="description"
+                    placeholder="Describe your activity experience..." 
+                    value={currentItem?.description || ''} 
+                    onChange={e => setCurrentItem({...currentItem, description: e.target.value})} 
+                    rows={3}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="price">Price (USD) *</Label>
+                    <Input 
+                      id="price"
+                      type="number" 
+                      placeholder="50" 
+                      value={currentItem?.price || ''} 
+                      onChange={e => setCurrentItem({...currentItem, price: parseFloat(e.target.value) || 0})} 
+                      required
+                    />
+                  </div>
+                  
+                  <div className="grid gap-2">
+                    <Label htmlFor="duration">Duration (minutes)</Label>
+                    <Input 
+                      id="duration"
+                      type="number" 
+                      placeholder="60" 
+                      value={currentItem?.duration_minutes || ''} 
+                      onChange={e => setCurrentItem({...currentItem, duration_minutes: parseInt(e.target.value) || undefined})} 
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="category">Category *</Label>
+                  <Select 
+                    value={currentItem?.category_id || ''} 
+                    onValueChange={value => setCurrentItem({...currentItem, category_id: value})}
+                  >
+                    <SelectTrigger className={cn(validationError === 'category_id' && 'border-destructive')}>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
                     <SelectContent>
-                        {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                      {categories.map(category => (
+                        <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                      ))}
                     </SelectContent>
-                </Select>
+                  </Select>
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="max_participants">Max Participants</Label>
+                  <Input 
+                    id="max_participants"
+                    type="number" 
+                    placeholder="4" 
+                    value={currentItem?.max_participants || ''} 
+                    onChange={e => setCurrentItem({...currentItem, max_participants: parseInt(e.target.value) || undefined})} 
+                  />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="meeting_point">Meeting Point</Label>
+                  <Input 
+                    id="meeting_point"
+                    placeholder="e.g., Main Beach Dock A" 
+                    value={currentItem?.meeting_point || ''} 
+                    onChange={e => setCurrentItem({...currentItem, meeting_point: e.target.value})} 
+                  />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="requirements">Requirements/Notes</Label>
+                  <Textarea 
+                    id="requirements"
+                    placeholder="e.g., Must know how to swim, Minimum age 16..." 
+                    value={currentItem?.requirements || ''} 
+                    onChange={e => setCurrentItem({...currentItem, requirements: e.target.value})} 
+                    rows={2}
+                  />
+                </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="secondary" onClick={closeDialog}>Cancel</Button>
-              <Button type="submit" disabled={isSaving}>{isSaving ? 'Saving...' : 'Save'}</Button>
+              <Button type="button" variant="outline" onClick={closeDialog} disabled={isSaving}>Cancel</Button>
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? 'Saving...' : (currentItem?.id ? 'Update Activity' : 'Add Activity')}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
       <AlertDialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
-          <AlertDialogContent>
-              <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone. This will permanently delete the menu item.</AlertDialogDescription></AlertDialogHeader>
-              <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction></AlertDialogFooter>
-          </AlertDialogContent>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Activity</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{itemToDelete?.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
       </AlertDialog>
     </Card>
   )

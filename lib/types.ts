@@ -16,8 +16,8 @@ export type Category = {
   vendor_id: string;
 };
 
-// Based on the 'menu_items' table
-export type MenuItem = {
+// Based on the 'activities' table (formerly menu_items)
+export type Activity = {
   id: string;
   vendor_id: string;
   category_id: string | null;
@@ -25,40 +25,69 @@ export type MenuItem = {
   description: string | null;
   price: number;
   image_url: string | null;
+  // FastLane additions
+  duration_minutes: number;
+  meeting_point: string | null;
+  requirements: string | null;
+  max_participants: number;
+  created_at?: string;
 };
 
-// For the 'order_details' JSONB column in the 'orders' table
-export type OrderDetail = {
-  menu_item_id: string;
+// For backward compatibility - alias Activity as MenuItem
+export type MenuItem = Activity;
+
+// For the 'booking_details' JSONB column in the 'bookings' table
+export type BookingDetail = {
+  activity_id: string; // using activity_id for the new schema
   quantity: number;
   name: string;
   price_at_purchase: number;
 };
 
-// Based on the 'orders'table
-export type Order = {
+// For backward compatibility
+export type OrderDetail = BookingDetail;
+
+// Based on the 'bookings' table (database table name)
+export type Booking = {
   id: string;
   vendor_id: string;
-  order_details: OrderDetail[];
+  booking_details: BookingDetail[]; // using the actual database field name
   total_price: number;
   is_paid: boolean;
   is_fulfilled: boolean;
   created_at: string;
   customer_email?: string | null;
+  // FastLane additions
+  booking_date: string;
+  booking_time: string;
+  customer_phone: string;
+  customer_whatsapp?: string | null;
+  booking_number: string;
+  participant_count: number;
 };
 
-// For the client-side cart state (Zustand)
+// For backward compatibility - alias Booking as Order
+export type Order = Booking;
+
+// For the client-side cart state (Zustand) - updated for FastLane
 export type CartItem = {
-  id: string; // This is the menu_item_id
+  id: string; // This is the activity_id
   title: string;
   price: number;
   image_url: string | null;
   quantity: number;
+  // FastLane additions for booking
+  duration_minutes?: number;
+  meeting_point?: string | null;
+  max_participants?: number;
 };
 
-// Composite type for the public vendor menu page, nesting categories and items
-export type VendorWithMenu = Vendor & {
+// Composite type for the public vendor page, nesting categories and activities
+export type VendorWithActivities = Vendor & {
   categories: (Category & {
-    menu_items: MenuItem[];
+    activities: Activity[];
   })[];
-}; 
+};
+
+// For backward compatibility
+export type VendorWithMenu = VendorWithActivities; 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { VendorWithMenu } from '@/lib/types';
 
 export function useVendor(vendorId: string) {
@@ -9,7 +9,7 @@ export function useVendor(vendorId: string) {
 
   useEffect(() => {
     async function fetchVendorData() {
-      const supabase = createClient();
+    
 
       const { data, error } = await supabase
         .from('vendors')
@@ -24,14 +24,19 @@ export function useVendor(vendorId: string) {
           categories (
             id,
             name,
-            menu_items (
+            vendor_id,
+            activities (
               id,
               title,
               description,
               price,
               image_url,
               vendor_id,
-              category_id
+              category_id,
+              duration_minutes,
+              meeting_point,
+              requirements,
+              max_participants
             )
           )
         `)
@@ -41,8 +46,17 @@ export function useVendor(vendorId: string) {
       if (error || !data) {
         setError(true);
       } else {
-        const categoriesWithItems = data.categories.filter(category => category.menu_items.length > 0);
-        setVendor({ ...data, categories: categoriesWithItems } as VendorWithMenu);
+        const transformedCategories = data.categories
+          .filter(category => category.activities.length > 0)
+          .map(category => ({
+            ...category,
+            activities: category.activities
+          }));
+        
+        setVendor({ 
+          ...data, 
+          categories: transformedCategories 
+        } as VendorWithMenu);
       }
       
       setLoading(false);

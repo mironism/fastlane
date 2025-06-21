@@ -1,12 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { Category } from '@/lib/types'
 
 export function useCategories() {
-  const supabase = createClient()
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [vendorId, setVendorId] = useState<string | null>(null);
@@ -33,7 +32,7 @@ export function useCategories() {
       }
     };
     getVendor();
-  }, [supabase])
+  }, [])
 
   // Fetch categories once vendor ID is available
   useEffect(() => {
@@ -56,7 +55,7 @@ export function useCategories() {
       }
       fetchCategories()
     }
-  }, [vendorId, supabase])
+  }, [vendorId])
 
 
   const addCategory = async (name: string) => {

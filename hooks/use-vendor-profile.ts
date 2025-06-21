@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { Vendor } from '@/lib/types';
 
 export function useVendorProfile() {
   const router = useRouter();
-  const supabase = createClient();
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [vendor, setVendor] = useState<Vendor | null>(null);
@@ -52,7 +52,7 @@ export function useVendorProfile() {
     };
 
     fetchVendorData();
-  }, [router, supabase]);
+  }, [router]);
 
   const handleImageClick = () => {
     fileInputRef.current?.click();

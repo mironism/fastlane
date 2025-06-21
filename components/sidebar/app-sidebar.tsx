@@ -10,13 +10,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { LogOut, Home, Utensils, ClipboardList, User } from "lucide-react"
+import { LogOut, Home, Calendar, Waves, User } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
 export const navItems = [
   { href: '/admin', label: 'Home', icon: Home },
-  { href: '/admin/orders', label: 'Orders', icon: ClipboardList },
-  { href: '/admin/menu', label: 'Menu', icon: Utensils },
+  { href: '/admin/orders', label: 'Bookings', icon: Calendar },
+  { href: '/admin/menu', label: 'Activities', icon: Waves },
   { href: '/admin/profile', label: 'Profile', icon: User },
 ]
 
@@ -34,7 +34,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="flex flex-row h-16 items-center justify-start border-b p-4">
-        <div className="text-lg font-semibold ml-2">QuickSip</div>
+        <div className="text-lg font-semibold ml-2">FastLane</div>
       </SidebarHeader>
       <SidebarContent className="flex h-full flex-col p-4">
         <SidebarMenu className="flex-1">

@@ -28,6 +28,9 @@ export default function HomePage() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
+        // Wait a bit for potential vendor creation trigger
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         const { data: vendor, error } = await supabase
           .from('vendors')
           .select('id')
@@ -35,10 +38,30 @@ export default function HomePage() {
           .single();
 
         if (vendor) {
-          const baseUrl = window.location.origin;
+          // Get the base URL - works for localhost and Vercel
+          const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
           setVendorUrl(`${baseUrl}/vendor/${vendor.id}`);
         } else if (error) {
-          console.error("Error fetching vendor ID:", error.message)
+          console.error("Error fetching vendor ID:", error.message);
+          console.log("Creating vendor profile...");
+          
+          // Fallback: Create vendor profile manually if trigger didn't work
+          const { data: newVendor, error: createError } = await supabase
+            .from('vendors')
+            .insert({
+              user_id: user.id,
+              name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'New Vendor'
+            })
+            .select('id')
+            .single();
+            
+          if (newVendor) {
+            const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+            setVendorUrl(`${baseUrl}/vendor/${newVendor.id}`);
+            console.log("Vendor profile created successfully!");
+          } else {
+            console.error("Failed to create vendor profile:", createError?.message);
+          }
         }
       }
       setIsLoading(false);
@@ -59,9 +82,9 @@ export default function HomePage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Welcome to QuickSip</CardTitle>
+        <CardTitle>Welcome to FastLane</CardTitle>
         <CardDescription>
-          A quick guide to get you started with managing your venue
+          A quick guide to get you started with managing your activity business
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -78,27 +101,27 @@ export default function HomePage() {
           </p>
         </div>
         <div className="space-y-2">
-          <h3 className="font-semibold">Step 2: Build Your Menu</h3>
+          <h3 className="font-semibold">Step 2: Build Your Activities</h3>
           <p className="text-sm text-muted-foreground">
             Visit the{' '}
             <Link href="/admin/menu" className="font-medium text-primary hover:underline">
-              Menu
+              Activities
             </Link>{' '}
             section to create and organize your offerings. Start by adding
-            categories (like Cocktails, Beers, etc.) and then populate them
-            with your delicious menu items. A well-structured menu helps customers
+            categories (like Water Sports, Tours, etc.) and then populate them
+            with your exciting activities. A well-structured menu helps customers
             find what they want quickly.
           </p>
         </div>
         <div className="space-y-2">
-          <h3 className="font-semibold">Step 3: Manage Incoming Orders</h3>
+          <h3 className="font-semibold">Step 3: Manage Incoming Bookings</h3>
           <p className="text-sm text-muted-foreground">
             The{' '}
             <Link href="/admin/orders" className="font-medium text-primary hover:underline">
-              Orders
+              Bookings
             </Link>{' '}
-            tab is your command center for all customer orders. Here, you can view
-            new orders as they come in and mark them as fulfilled. Speedy order
+            tab is your command center for all customer bookings. Here, you can view
+            new bookings as they come in and mark them as fulfilled. Speedy booking
             management is key to happy, returning customers.
           </p>
         </div>
@@ -107,7 +130,7 @@ export default function HomePage() {
           <div className="space-y-2">
             <h3 className="font-semibold">Your Public Link</h3>
             <p className="text-sm text-muted-foreground">
-              Share this link with your customers so they can view your menu and place orders.
+              Share this link with your customers so they can view your activities and make bookings.
             </p>
           </div>
           <div className="flex items-center space-x-2">
