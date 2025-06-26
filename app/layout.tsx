@@ -8,8 +8,26 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "QuickSip",
-  description: "The quickest way to order food and drinks",
+  title: "FastLane - Beach Activity Bookings",
+  description: "The fastest way to book amazing beach activities and water sports. Discover and reserve your perfect beach experience with just a few clicks.",
+  keywords: "beach activities, water sports, activity booking, beach tours, water adventures, marine activities, beach experiences",
+  authors: [{ name: "FastLane Team" }],
+  creator: "FastLane",
+  publisher: "FastLane",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://fastlane-bookings.com",
+    title: "FastLane - Beach Activity Bookings",
+    description: "The fastest way to book amazing beach activities and water sports. Discover and reserve your perfect beach experience with just a few clicks.",
+    siteName: "FastLane",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FastLane - Beach Activity Bookings",
+    description: "The fastest way to book amazing beach activities and water sports. Discover and reserve your perfect beach experience with just a few clicks.",
+    creator: "@fastlane",
+  },
 };
 
 export default function RootLayout({
