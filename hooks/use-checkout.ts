@@ -119,11 +119,11 @@ export function useCheckout() {
         is_paid: false,
         booking_date: bookingData.booking_date,
         booking_time: bookingData.booking_time,
-        customer_name: bookingData.customer_name,
+        customer_name: bookingData.customer_name || '',
         customer_email: bookingData.customer_email,
-        customer_whatsapp: bookingData.customer_whatsapp,
-        comments: bookingData.comments,
-        participant_count: bookingData.participant_count,
+        customer_whatsapp: bookingData.customer_whatsapp || '',
+        comments: bookingData.comments || null,
+        participant_count: bookingData.participant_count || 1,
       };
       
       console.log('💾 Insert data:', insertData);
