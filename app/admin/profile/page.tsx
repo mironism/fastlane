@@ -18,6 +18,8 @@ export default function ProfilePage() {
     setDescription,
     location,
     setLocation,
+    howToBook,
+    setHowToBook,
     profilePicturePreview,
     isLoading,
     isSaving,
@@ -118,6 +120,19 @@ export default function ProfilePage() {
               onChange={(e) => setLocation(e.target.value)}
               placeholder="Downtown, Waterfront"
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="howToBook">How to Book Instructions</Label>
+            <Textarea
+              id="howToBook"
+              value={howToBook}
+              onChange={(e) => setHowToBook(e.target.value)}
+              placeholder="Customize your booking instructions (e.g., 1. Select activities 2. Choose date/time 3. Confirm booking)"
+              rows={4}
+            />
+            <p className="text-xs text-muted-foreground">
+              These instructions will appear on your activity page to guide customers through the booking process.
+            </p>
           </div>
           <Button type="submit" disabled={isSaving}>
             {isSaving ? 'Saving...' : 'Save Changes'}

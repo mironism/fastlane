@@ -2,7 +2,7 @@
 
 import { Booking } from '@/lib/types'
 import { format } from 'date-fns'
-import { Calendar, Clock, Users, Phone } from 'lucide-react'
+import { Calendar, Clock, Users, MessageCircle, User } from 'lucide-react'
 
 interface BookingCardProps {
   order: Booking;
@@ -35,7 +35,7 @@ export function OrderCard({ order, actionSlot }: BookingCardProps) {
           </div>
           
           {/* Booking Details - Only show if FastLane fields exist */}
-          {(order.booking_date || order.booking_time || order.participant_count || order.customer_phone) && (
+          {(order.booking_date || order.booking_time || order.customer_name || order.customer_whatsapp) && (
             <div className="space-y-2 text-sm mb-3">
               {order.booking_date && order.booking_time && (
                 <div className="flex items-center gap-2 text-muted-foreground">
@@ -47,16 +47,16 @@ export function OrderCard({ order, actionSlot }: BookingCardProps) {
               )}
               
               <div className="flex items-center gap-4 text-muted-foreground">
-                {order.participant_count && (
+                {order.customer_name && (
                   <div className="flex items-center gap-1">
-                    <Users className="h-3 w-3" />
-                    <span>{order.participant_count} guest{order.participant_count > 1 ? 's' : ''}</span>
+                    <User className="h-3 w-3" />
+                    <span className="truncate max-w-32">{order.customer_name}</span>
                   </div>
                 )}
-                {order.customer_phone && (
+                {order.customer_whatsapp && (
                   <div className="flex items-center gap-1">
-                    <Phone className="h-3 w-3" />
-                    <span className="truncate max-w-32">{order.customer_phone}</span>
+                    <MessageCircle className="h-3 w-3" />
+                    <span className="truncate max-w-32">{order.customer_whatsapp}</span>
                   </div>
                 )}
               </div>

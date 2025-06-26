@@ -23,19 +23,22 @@ export const useCartStore = create<CartState>()(
       items: [],
 
       // Add an item to the cart or increment its quantity
-      addItem: (newItem) => {
-        const { items } = get();
-        const existingItemIndex = items.findIndex((item) => item.id === newItem.id);
-
-        if (existingItemIndex > -1) {
-          // Item already exists, just increment the quantity
-          const updatedItems = [...items];
-          updatedItems[existingItemIndex].quantity += 1;
-          set({ items: updatedItems });
-        } else {
-          // Item is new, add it to the cart
-          set({ items: [...items, { ...newItem, quantity: 1 }] });
-        }
+      addItem: (activity) => {
+        set((state) => {
+          // Clear existing items to ensure single activity booking
+          const newItems = [{
+            id: activity.id,
+            title: activity.title,
+            price: activity.price,
+            image_url: activity.image_url,
+            quantity: 1, // Always 1 for single activity booking
+            duration_minutes: activity.duration_minutes,
+            meeting_point: activity.meeting_point,
+            max_participants: activity.max_participants,
+          }]
+          
+          return { items: newItems }
+        })
       },
 
       // Remove an item from the cart completely

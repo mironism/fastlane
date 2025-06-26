@@ -12,10 +12,11 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Minus, Plus, X, Calendar as CalendarIcon, Users, Clock } from 'lucide-react'
+import { X, Calendar as CalendarIcon, Clock } from 'lucide-react'
 import { useCheckout, BookingData } from '@/hooks/use-checkout'
 import { Card } from '@/components/ui/card'
 import { format } from 'date-fns'
@@ -36,37 +37,42 @@ export function ShoppingCart({
   // Booking form state
   const [bookingDate, setBookingDate] = useState<Date | undefined>(undefined)
   const [bookingTime, setBookingTime] = useState<string>('')
+  const [customerName, setCustomerName] = useState<string>('')
   const [customerEmail, setCustomerEmail] = useState<string>('')
-  const [customerPhone, setCustomerPhone] = useState<string>('')
   const [customerWhatsapp, setCustomerWhatsapp] = useState<string>('')
-  const [participantCount, setParticipantCount] = useState<number>(1)
+  const [comments, setComments] = useState<string>('')
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
-  // Generate time slots (9 AM to 6 PM, every 30 minutes)
+  // Generate time slots (9 AM to 6 PM, every 1 hour)
   const timeSlots = []
   for (let hour = 9; hour <= 18; hour++) {
-    for (let minute = 0; minute < 60; minute += 30) {
-      const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-      const displayTime = new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      })
-      timeSlots.push({ value: timeString, label: displayTime })
-    }
+    const timeString = `${hour.toString().padStart(2, '0')}:00`
+    const displayTime = new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    })
+    timeSlots.push({ value: timeString, label: displayTime })
+  }
+
+  const handleDateSelect = (date: Date | undefined) => {
+    setBookingDate(date)
+    setIsCalendarOpen(false) // Close calendar automatically
   }
 
   const handleSubmitBooking = async () => {
-    if (!bookingDate || !bookingTime || !customerEmail || !customerPhone) {
+    if (!bookingDate || !bookingTime || !customerName || !customerEmail || !customerWhatsapp) {
       return // Validation will be handled by the form
     }
 
     const bookingData: BookingData = {
       booking_date: format(bookingDate, 'yyyy-MM-dd'),
       booking_time: bookingTime,
+      customer_name: customerName,
       customer_email: customerEmail,
-      customer_phone: customerPhone,
-      customer_whatsapp: customerWhatsapp || undefined,
-      participant_count: participantCount
+      customer_whatsapp: customerWhatsapp,
+      comments: comments || undefined,
+      participant_count: 1 // Default to 1 since we removed the selector
     }
 
     await handleBooking(vendorId, bookingData)
@@ -74,14 +80,14 @@ export function ShoppingCart({
     // Reset form on success
     setBookingDate(undefined)
     setBookingTime('')
+    setCustomerName('')
     setCustomerEmail('')
-    setCustomerPhone('')
     setCustomerWhatsapp('')
-    setParticipantCount(1)
+    setComments('')
     onOpenChange(false)
   }
 
-  const isFormValid = bookingDate && bookingTime && customerEmail && customerPhone
+  const isFormValid = bookingDate && bookingTime && customerName && customerEmail && customerWhatsapp
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -142,7 +148,7 @@ export function ShoppingCart({
                 {/* Date Picker */}
                 <div className="space-y-2">
                   <Label htmlFor="date">Select Date *</Label>
-                  <Popover>
+                  <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
@@ -159,7 +165,7 @@ export function ShoppingCart({
                       <Calendar
                         mode="single"
                         selected={bookingDate}
-                        onSelect={setBookingDate}
+                        onSelect={handleDateSelect}
                         disabled={(date) => date < new Date() || date < new Date("1900-01-01")}
                         initialFocus
                       />
@@ -184,37 +190,22 @@ export function ShoppingCart({
                   </Select>
                 </div>
 
-                {/* Participant Count */}
-                <div className="space-y-2">
-                  <Label htmlFor="participants">Number of Participants</Label>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => setParticipantCount(Math.max(1, participantCount - 1))}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <div className="flex items-center gap-1 px-3 py-1 border rounded-md min-w-16 justify-center">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">{participantCount}</span>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => setParticipantCount(participantCount + 1)}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
                 {/* Contact Information */}
                 <div className="space-y-3">
                   <h4 className="font-medium text-sm">Contact Information</h4>
                   
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Name *</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="John Doe"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      required
+                    />
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address *</Label>
                     <Input
@@ -228,27 +219,38 @@ export function ShoppingCart({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number *</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="+90 555 123 4567"
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="whatsapp">WhatsApp (optional)</Label>
+                    <Label htmlFor="whatsapp">WhatsApp / Telegram *</Label>
                     <Input
                       id="whatsapp"
                       type="tel"
                       placeholder="+90 555 123 4567"
                       value={customerWhatsapp}
                       onChange={(e) => setCustomerWhatsapp(e.target.value)}
+                      required
                     />
                   </div>
+
+                                     <div className="space-y-2">
+                     <Label htmlFor="comments">Comments (optional)</Label>
+                     <Textarea
+                       id="comments"
+                       placeholder="Any special requests or additional information..."
+                       value={comments}
+                       onChange={(e) => setComments(e.target.value)}
+                       rows={3}
+                     />
+                   </div>
+
+                   {/* Booking Conditions */}
+                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                     <h5 className="text-xs font-semibold text-amber-800 mb-2">Booking Conditions</h5>
+                     <div className="text-xs text-amber-700 space-y-1">
+                       <p>• This booking is <strong>not financially binding</strong></p>
+                       <p>• Payment will be collected at the activity location</p>
+                       <p>• Please arrive 15 minutes before your scheduled time</p>
+                       <p>• Bring cash or card for payment</p>
+                     </div>
+                   </div>
                 </div>
               </div>
             </div>

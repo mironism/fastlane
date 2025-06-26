@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Calendar, Clock, Users, Phone, Mail, MapPin } from 'lucide-react'
+import { Calendar, Clock, Users, Mail, MapPin, MessageCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 
@@ -20,7 +20,9 @@ interface SimpleBooking {
   booking_date?: string
   booking_time?: string
   participant_count?: number
-  customer_phone?: string
+  customer_name?: string
+  customer_whatsapp?: string
+  comments?: string
 }
 
 export default function BookingsPage() {
@@ -149,14 +151,19 @@ export default function BookingsPage() {
           <div className="space-y-4">
             {/* Customer Info */}
             <div className="flex items-center gap-4 text-sm">
+              {booking.customer_name && (
+                <div className="flex items-center gap-1">
+                  <span className="font-medium">{booking.customer_name}</span>
+                </div>
+              )}
               <div className="flex items-center gap-1">
                 <Mail className="h-4 w-4 text-muted-foreground" />
                 <span>{booking.customer_email}</span>
               </div>
-              {booking.customer_phone && (
+              {booking.customer_whatsapp && (
                 <div className="flex items-center gap-1">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span>{booking.customer_phone}</span>
+                  <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                  <span>{booking.customer_whatsapp}</span>
                 </div>
               )}
             </div>

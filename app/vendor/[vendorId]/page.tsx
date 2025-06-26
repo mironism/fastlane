@@ -89,9 +89,32 @@ export default function VendorPage({
         <div className="container mx-auto max-w-3xl p-4">
           {/* Vendor Info Card */}
           {(vendor.description || vendor.location) && (
-            <Card className="mb-4 p-0 bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
+            <Card className="mb-4 p-0 bg-background/60 border border-primary/30 rounded-lg">
               <CardContent className="p-4">
                 <div className="flex flex-col gap-3">
+                  {/* How to Book Guide */}
+                  {(vendor.how_to_book || vendor.description || vendor.location) && (
+                    <div>
+                      <h3 className="text-sm font-semibold text-primary mb-2 flex items-center gap-1">
+                        <CalendarDays className="h-4 w-4" />
+                        How to Book
+                      </h3>
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        {vendor.how_to_book ? (
+                          vendor.how_to_book.split('\n').map((line, index) => (
+                            <p key={index}>{line}</p>
+                          ))
+                        ) : (
+                          <>
+                            <p><strong>1.</strong> Select your activities and tap the calendar icon</p>
+                            <p><strong>2.</strong> Choose your date and time, then enter your details</p>
+                            <p><strong>3.</strong> Confirm your booking and you're all set!</p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
                   {vendor.description && (
                     <p className="text-sm text-muted-foreground">{vendor.description}</p>
                   )}

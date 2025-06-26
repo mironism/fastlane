@@ -5,6 +5,7 @@ export type Vendor = {
   description: string | null;
   location: string | null;
   profile_picture_url: string | null;
+  how_to_book: string | null;
   user_id: string;
   created_at: string;
 };
@@ -60,8 +61,9 @@ export type Booking = {
   // FastLane additions
   booking_date: string;
   booking_time: string;
-  customer_phone: string;
+  customer_name: string;
   customer_whatsapp?: string | null;
+  comments?: string | null;
   booking_number: string;
   participant_count: number;
 };
