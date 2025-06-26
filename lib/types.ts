@@ -5,6 +5,7 @@ export type Vendor = {
   description: string | null;
   location: string | null;
   profile_picture_url: string | null;
+  cover_image_url: string | null;
   how_to_book: string | null;
   user_id: string;
   created_at: string;
@@ -92,4 +93,14 @@ export type VendorWithActivities = Vendor & {
 };
 
 // For backward compatibility
-export type VendorWithMenu = VendorWithActivities; 
+export type VendorWithMenu = VendorWithActivities;
+
+export interface Lead {
+  id: string
+  business_name: string
+  contact_email: string
+  business_type: string
+  message?: string
+  created_at: string
+  updated_at: string
+} 

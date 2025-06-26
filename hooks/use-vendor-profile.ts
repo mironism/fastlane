@@ -10,6 +10,7 @@ export function useVendorProfile() {
   const router = useRouter();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverImageInputRef = useRef<HTMLInputElement>(null);
 
   const [vendor, setVendor] = useState<Vendor | null>(null);
   const [name, setName] = useState('');
@@ -18,6 +19,8 @@ export function useVendorProfile() {
   const [howToBook, setHowToBook] = useState('');
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
   const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
+  const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
@@ -49,6 +52,7 @@ export function useVendorProfile() {
         setLocation(data.location || '');
         setHowToBook(data.how_to_book || '');
         setProfilePicturePreview(data.profile_picture_url || null);
+        setCoverImagePreview(data.cover_image_url || null);
       }
       setIsLoading(false);
     };
@@ -60,6 +64,10 @@ export function useVendorProfile() {
     fileInputRef.current?.click();
   };
 
+  const handleCoverImageClick = () => {
+    coverImageInputRef.current?.click();
+  };
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -67,6 +75,18 @@ export function useVendorProfile() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfilePicturePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCoverImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setCoverImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCoverImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -83,14 +103,15 @@ export function useVendorProfile() {
     }
 
     let profilePictureUrl = vendor.profile_picture_url;
+    let coverImageUrl = vendor.cover_image_url;
 
     if (profilePictureFile) {
-      const filePath = `${userId}/${Date.now()}_${profilePictureFile.name}`;
+      const filePath = `${userId}/${Date.now()}_profile_${profilePictureFile.name}`;
       const { error: uploadError } = await supabase.storage
         .from('media')
         .upload(filePath, profilePictureFile, {
             cacheControl: '3600',
-            upsert: false // Set to true if you want to allow overwriting
+            upsert: false
         });
 
       if (uploadError) {
@@ -104,6 +125,26 @@ export function useVendorProfile() {
       profilePictureUrl = urlData.publicUrl;
     }
 
+    if (coverImageFile) {
+      const filePath = `${userId}/${Date.now()}_cover_${coverImageFile.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(filePath, coverImageFile, {
+            cacheControl: '3600',
+            upsert: false
+        });
+
+      if (uploadError) {
+        toast.error('Failed to upload cover image.');
+        console.error(uploadError);
+        setIsSaving(false);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage.from('media').getPublicUrl(filePath);
+      coverImageUrl = urlData.publicUrl;
+    }
+
     const { error: updateError } = await supabase
       .from('vendors')
       .update({
@@ -112,6 +153,7 @@ export function useVendorProfile() {
         location,
         how_to_book: howToBook,
         profile_picture_url: profilePictureUrl,
+        cover_image_url: coverImageUrl,
       })
       .eq('id', vendor.id);
     
@@ -137,11 +179,15 @@ export function useVendorProfile() {
     howToBook,
     setHowToBook,
     profilePicturePreview,
+    coverImagePreview,
     isLoading,
     isSaving,
     fileInputRef,
+    coverImageInputRef,
     handleImageClick,
+    handleCoverImageClick,
     handleFileChange,
+    handleCoverImageChange,
     handleSubmit
   };
 } 

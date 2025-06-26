@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CalendarDays, Plus, User, MapPin, Clock } from 'lucide-react';
+import { CalendarDays, Plus, User, MapPin, Clock, Check, X } from 'lucide-react';
 import { useCartStore } from '@/hooks/use-cart-store';
 import { ShoppingCart } from '@/components/orders/shopping-cart';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -26,7 +26,15 @@ export default function VendorPage({
   const { vendor, loading, error } = useVendor(vendorId);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const addItemToCart = useCartStore((state) => state.addItem);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const cartItems = useCartStore((state) => state.items);
   const totalItems = useCartStore((state) => state.totalItems());
+  
+  const isActivityInCart = (activityId: string) => {
+    return cartItems.some(item => item.id === activityId);
+  };
+  
+  const hasItemsInCart = totalItems > 0;
 
   if (loading) {
     return (
@@ -87,6 +95,20 @@ export default function VendorPage({
 
         {/* Main Content */}
         <div className="container mx-auto max-w-3xl p-4">
+          {/* Cover Image */}
+          {vendor.cover_image_url && (
+            <div className="relative w-full h-48 rounded-lg overflow-hidden mb-4 shadow-sm">
+              <Image
+                src={vendor.cover_image_url}
+                alt={`${vendor.name || 'Vendor'} cover image`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 768px"
+                priority
+              />
+            </div>
+          )}
+
           {/* Vendor Info Card */}
           {(vendor.description || vendor.location) && (
             <Card className="mb-4 p-0 bg-background/60 border border-primary/30 rounded-lg">
@@ -180,14 +202,30 @@ export default function VendorPage({
                               ${activity.price.toFixed(2)}
                             </span>
                           </div>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            className="h-8 w-8 p-0 rounded-sm shadow-sm hover:shadow-md hover:bg-primary hover:text-primary-foreground transition-all ml-3"
-                            onClick={() => addItemToCart(activity)}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
+                          {isActivityInCart(activity.id) ? (
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="h-8 w-8 p-0 rounded-sm shadow-sm bg-green-50 border-green-200 text-green-600 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all ml-3"
+                              onClick={() => removeItem(activity.id)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className={`h-8 w-8 p-0 rounded-sm shadow-sm transition-all ml-3 ${
+                                hasItemsInCart 
+                                  ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-200 text-gray-400' 
+                                  : 'hover:shadow-md hover:bg-primary hover:text-primary-foreground'
+                              }`}
+                              onClick={() => !hasItemsInCart && addItemToCart(activity)}
+                              disabled={hasItemsInCart}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </Card>
                     ))}

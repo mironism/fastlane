@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { User, Pencil } from 'lucide-react'
+import { User, Pencil, Image as ImageIcon } from 'lucide-react'
 import { useVendorProfile } from '@/hooks/use-vendor-profile'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -21,11 +21,15 @@ export default function ProfilePage() {
     howToBook,
     setHowToBook,
     profilePicturePreview,
+    coverImagePreview,
     isLoading,
     isSaving,
     fileInputRef,
+    coverImageInputRef,
     handleImageClick,
+    handleCoverImageClick,
     handleFileChange,
+    handleCoverImageChange,
     handleSubmit
   } = useVendorProfile();
 
@@ -90,6 +94,41 @@ export default function ProfilePage() {
               type="file"
               ref={fileInputRef}
               onChange={handleFileChange}
+              className="hidden"
+              accept="image/*"
+            />
+          </div>
+          
+          <div className="space-y-4">
+            <Label>Cover Image</Label>
+            <p className="text-sm text-muted-foreground">This image will appear at the top of your activity page</p>
+            <div
+              className="group relative w-full h-32 rounded-lg bg-muted flex items-center justify-center cursor-pointer transition-colors border-2 border-dashed border-muted-foreground/25 hover:border-muted-foreground/50"
+              onClick={handleCoverImageClick}
+            >
+              {coverImagePreview ? (
+                <Image
+                  src={coverImagePreview}
+                  alt="Cover Preview"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 768px"
+                  className="rounded-lg object-cover"
+                />
+              ) : (
+                <div className="text-center">
+                  <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">Click to upload cover image</p>
+                </div>
+              )}
+              <div className="absolute inset-0 rounded-lg flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Pencil className="h-6 w-6 text-white" />
+              </div>
+            </div>
+            <Input
+              id="coverImage"
+              type="file"
+              ref={coverImageInputRef}
+              onChange={handleCoverImageChange}
               className="hidden"
               accept="image/*"
             />
