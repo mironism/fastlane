@@ -227,8 +227,8 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'FastLane Beach Activities <bookings@fast-lane.tech>',
-        to: ['miron@mayor.io'], // Temporarily send all emails to you until domain is verified
+        from: 'FastLane Beach Activities <bookings@resend.dev>',
+        to: [booking.customer_email],
         subject: `🏖️ Booking Confirmed: ${booking.booking_number} - ${bookingDate}`,
         html: emailHtml,
       }),
