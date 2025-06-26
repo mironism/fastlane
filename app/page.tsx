@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -131,10 +132,13 @@ export default function Home() {
           {/* Right Side - Hero Image */}
           <div className="flex justify-center">
             <div className="relative aspect-[4/3] w-full max-w-lg rounded-lg overflow-hidden shadow-lg">
-              <img 
+              <Image 
                 src="/images/landing/hero/hero-activities.jpg"
                 alt="Sports and Activities"
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 512px"
+                priority
               />
             </div>
           </div>
