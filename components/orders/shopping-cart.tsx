@@ -91,7 +91,7 @@ export function ShoppingCart({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="flex flex-col p-0 gap-0 w-full sm:max-w-md">
+      <SheetContent id="booking-cart" className="flex flex-col p-0 gap-0 w-full sm:max-w-md">
         <SheetHeader className="p-3 border-b">
           <SheetTitle className="text-lg font-semibold">Book Activities</SheetTitle>
         </SheetHeader>
@@ -119,7 +119,7 @@ export function ShoppingCart({
                       
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-sm truncate">{item.title}</h4>
-                        <p className="text-xs text-muted-foreground">${item.price.toFixed(2)}</p>
+                        <p className="text-xs text-muted-foreground">€{item.price.toFixed(2)}</p>
                         {item.duration_minutes && (
                           <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                             <Clock className="h-3 w-3" />
@@ -259,7 +259,7 @@ export function ShoppingCart({
             <div className="border-t bg-gray-50/50 p-3 space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold text-primary">Total</span>
-                <span className="text-lg font-semibold text-primary">${totalPrice().toFixed(2)}</span>
+                <span className="text-lg font-semibold text-primary">€{totalPrice().toFixed(2)}</span>
               </div>
               <Button 
                 className="w-full rounded-sm" 

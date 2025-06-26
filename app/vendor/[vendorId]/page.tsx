@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Plus, User, MapPin, Clock, Check, X } from 'lucide-react';
 import { useCartStore } from '@/hooks/use-cart-store';
 import { ShoppingCart } from '@/components/orders/shopping-cart';
+import { CartIndicator } from '@/components/orders/cart-indicator';
 import { EmptyState } from '@/components/ui/empty-state';
 import { useVendor } from '@/hooks/use-vendor';
 
@@ -54,7 +55,8 @@ export default function VendorPage({
   return (
     <>
       <ShoppingCart open={isBookingOpen} onOpenChange={setIsBookingOpen} vendorId={vendor.id} />
-      <div className="min-h-screen bg-gray-50/50">
+      <CartIndicator onOpenCart={() => setIsBookingOpen(true)} />
+      <div className="min-h-screen bg-gray-50/50 pb-24">
         {/* Fixed Header */}
         <div className="fixed top-0 left-0 right-0 bg-background/95 backdrop-blur-md border-b z-10 shadow-sm">
           <header className="container mx-auto max-w-3xl flex items-center justify-between h-14 px-4">
@@ -199,7 +201,7 @@ export default function VendorPage({
                               </div>
                             </div>
                             <span className="font-semibold text-sm text-primary whitespace-nowrap">
-                              ${activity.price.toFixed(2)}
+                              €{activity.price.toFixed(2)}
                             </span>
                           </div>
                           {isActivityInCart(activity.id) ? (

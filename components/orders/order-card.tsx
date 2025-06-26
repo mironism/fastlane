@@ -73,7 +73,7 @@ export function OrderCard({ order, actionSlot }: BookingCardProps) {
           </ul>
         </div>
         <div className="flex flex-col justify-between items-end flex-shrink-0">
-          <p className="font-bold text-lg">${order.total_price?.toFixed(2) || '0.00'}</p>
+          <p className="font-bold text-lg">€{order.total_price?.toFixed(2) || '0.00'}</p>
           {actionSlot}
         </div>
       </div>

@@ -180,7 +180,7 @@ export function MenuItemManager() {
                           </div>
                           <div className="flex-1">
                             <div className="font-medium">{item.title}</div>
-                            <div className="text-sm text-muted-foreground">${item.price.toFixed(2)}</div>
+                            <div className="text-sm text-muted-foreground">€{item.price.toFixed(2)}</div>
                             <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                               {item.duration_minutes && (
                                 <div className="flex items-center gap-1">
@@ -256,7 +256,7 @@ export function MenuItemManager() {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="price">Price (USD) *</Label>
+                    <Label htmlFor="price">Price (EUR) *</Label>
                     <Input 
                       id="price"
                       type="number" 

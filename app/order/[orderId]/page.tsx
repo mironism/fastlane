@@ -107,11 +107,11 @@ export default function BookingConfirmationPage() {
                   <div className="flex-1">
                     <p className="font-medium">{item.name}</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {item.quantity} × ${item.price_at_purchase.toFixed(2)}
+                      {item.quantity} × €{item.price_at_purchase.toFixed(2)}
                     </p>
                   </div>
                   <p className="font-mono font-medium ml-4">
-                    ${(item.quantity * item.price_at_purchase).toFixed(2)}
+                    €{(item.quantity * item.price_at_purchase).toFixed(2)}
                   </p>
                 </div>
               ))}
@@ -133,7 +133,7 @@ export default function BookingConfirmationPage() {
             {/* Total */}
             <div className="flex justify-between items-center pt-2 border-t border-primary/20">
               <span className="font-bold text-lg">Total</span>
-              <span className="font-mono font-bold text-lg">${booking.total_price.toFixed(2)}</span>
+              <span className="font-mono font-bold text-lg">€{booking.total_price.toFixed(2)}</span>
             </div>
           </div>
 
