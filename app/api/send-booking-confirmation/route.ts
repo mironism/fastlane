@@ -227,7 +227,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'FastLane Beach Activities <bookings@resend.dev>',
+        from: 'FastLane Beach Activities <bookings@fast-lane.tech>',
         to: [booking.customer_email],
         subject: `🏖️ Booking Confirmed: ${booking.booking_number} - ${bookingDate}`,
         html: emailHtml,
