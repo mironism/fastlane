@@ -32,6 +32,12 @@ export type Activity = {
   meeting_point: string | null;
   requirements: string | null;
   max_participants: number;
+  // Tour system additions
+  activity_type: 'regular' | 'tour';
+  active_days: number[] | null; // [1,2,3,4,5,6,7] where 1=Monday, 7=Sunday
+  fixed_start_time: string | null; // HH:MM:SS format
+  price_per_participant: number | null; // For tours
+  max_participants_per_day: number | null; // For tours
   created_at?: string;
 };
 
@@ -83,6 +89,11 @@ export type CartItem = {
   duration_minutes?: number;
   meeting_point?: string | null;
   max_participants?: number;
+  // Tour system additions
+  activity_type?: 'regular' | 'tour';
+  fixed_start_time?: string | null;
+  price_per_participant?: number | null;
+  max_participants_per_day?: number | null;
 };
 
 // Composite type for the public vendor page, nesting categories and activities

@@ -9,12 +9,23 @@ interface CartIndicatorProps {
 }
 
 export function CartIndicator({ onOpenCart }: CartIndicatorProps) {
-  const { items, totalPrice } = useCartStore();
+  const { items } = useCartStore();
 
   // Don't show if cart is empty
   if (items.length === 0) return null;
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  
+  // Calculate total price with tour pricing support
+  const calculateTotalPrice = () => {
+    return items.reduce((total, item) => {
+      if (item.activity_type === 'tour' && item.price_per_participant) {
+        // For tours, show minimum price (1 person) in cart indicator
+        return total + item.price_per_participant;
+      }
+      return total + item.price * item.quantity;
+    }, 0);
+  };
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-6 md:max-w-md md:bottom-6">
@@ -32,7 +43,7 @@ export function CartIndicator({ onOpenCart }: CartIndicatorProps) {
           
           {/* Total Price */}
           <div className="font-semibold text-lg md:text-xl">
-            €{totalPrice().toFixed(2)}
+            €{calculateTotalPrice().toFixed(2)}
           </div>
           
           {/* View Cart Button */}

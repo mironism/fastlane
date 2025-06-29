@@ -187,21 +187,41 @@ export default function VendorPage({
                               )}
                               {/* Activity-specific details */}
                               <div className="flex items-center gap-2 mt-1">
-                                {activity.duration_minutes && (
-                                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                    <Clock className="h-3 w-3" />
-                                    <span>{activity.duration_minutes}min</span>
-                                  </div>
-                                )}
-                                {activity.max_participants && (
-                                  <div className="text-xs text-muted-foreground">
-                                    Max {activity.max_participants} people
-                                  </div>
+                                {activity.activity_type === 'tour' ? (
+                                  <>
+                                    {activity.fixed_start_time && (
+                                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                        <Clock className="h-3 w-3" />
+                                        <span>{activity.fixed_start_time}</span>
+                                      </div>
+                                    )}
+                                    {activity.max_participants_per_day && (
+                                      <div className="text-xs text-muted-foreground">
+                                        Up to {activity.max_participants_per_day}/day
+                                      </div>
+                                    )}
+                                  </>
+                                ) : (
+                                  <>
+                                    {activity.duration_minutes && (
+                                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                        <Clock className="h-3 w-3" />
+                                        <span>{activity.duration_minutes}min</span>
+                                      </div>
+                                    )}
+                                    {activity.max_participants && (
+                                      <div className="text-xs text-muted-foreground">
+                                        Max {activity.max_participants} people
+                                      </div>
+                                    )}
+                                  </>
                                 )}
                               </div>
                             </div>
                             <span className="font-semibold text-sm text-primary whitespace-nowrap">
-                              €{activity.price.toFixed(2)}
+                              {activity.activity_type === 'tour' && activity.price_per_participant
+                                ? `€${activity.price_per_participant.toFixed(2)}/person`
+                                : `€${activity.price.toFixed(2)}`}
                             </span>
                           </div>
                           {isActivityInCart(activity.id) ? (

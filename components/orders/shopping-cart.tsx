@@ -42,6 +42,7 @@ export function ShoppingCart({
   const [customerWhatsapp, setCustomerWhatsapp] = useState<string>('')
   const [comments, setComments] = useState<string>('')
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+  const [participantCount, setParticipantCount] = useState<number>(1)
 
   // Generate time slots (9 AM to 6 PM, every 1 hour)
   const timeSlots = []
@@ -60,19 +61,23 @@ export function ShoppingCart({
     setIsCalendarOpen(false) // Close calendar automatically
   }
 
+  // Check if any items are tours
+  const hasTours = items.some(item => item.activity_type === 'tour')
+  const firstTour = items.find(item => item.activity_type === 'tour')
+
   const handleSubmitBooking = async () => {
-    if (!bookingDate || !bookingTime || !customerName || !customerEmail || !customerWhatsapp) {
+    if (!bookingDate || (!hasTours && !bookingTime) || !customerName || !customerEmail || !customerWhatsapp) {
       return // Validation will be handled by the form
     }
 
     const bookingData: BookingData = {
       booking_date: format(bookingDate, 'yyyy-MM-dd'),
-      booking_time: bookingTime,
+      booking_time: hasTours && firstTour?.fixed_start_time ? firstTour.fixed_start_time : bookingTime,
       customer_name: customerName,
       customer_email: customerEmail,
       customer_whatsapp: customerWhatsapp,
       comments: comments || undefined,
-      participant_count: 1 // Default to 1 since we removed the selector
+      participant_count: hasTours ? participantCount : 1
     }
 
     await handleBooking(vendorId, bookingData)
@@ -84,10 +89,11 @@ export function ShoppingCart({
     setCustomerEmail('')
     setCustomerWhatsapp('')
     setComments('')
+    setParticipantCount(1)
     onOpenChange(false)
   }
 
-  const isFormValid = bookingDate && bookingTime && customerName && customerEmail && customerWhatsapp
+  const isFormValid = bookingDate && (hasTours || bookingTime) && customerName && customerEmail && customerWhatsapp
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -119,8 +125,17 @@ export function ShoppingCart({
                       
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-sm truncate">{item.title}</h4>
-                        <p className="text-xs text-muted-foreground">€{item.price.toFixed(2)}</p>
-                        {item.duration_minutes && (
+                        <p className="text-xs text-muted-foreground">
+                          {item.activity_type === 'tour' && item.price_per_participant
+                            ? `€${item.price_per_participant.toFixed(2)}/person`
+                            : `€${item.price.toFixed(2)}`}
+                        </p>
+                        {item.activity_type === 'tour' && item.fixed_start_time ? (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                            <Clock className="h-3 w-3" />
+                            <span>{item.fixed_start_time}</span>
+                          </div>
+                        ) : item.duration_minutes && (
                           <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                             <Clock className="h-3 w-3" />
                             <span>{item.duration_minutes}min</span>
@@ -173,22 +188,72 @@ export function ShoppingCart({
                   </Popover>
                 </div>
 
-                {/* Time Picker */}
-                <div className="space-y-2">
-                  <Label htmlFor="time">Select Time *</Label>
-                  <Select value={bookingTime} onValueChange={setBookingTime}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose time slot" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {timeSlots.map((slot) => (
-                        <SelectItem key={slot.value} value={slot.value}>
-                          {slot.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Time Picker - Only for regular activities */}
+                {!hasTours ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="time">Select Time *</Label>
+                    <Select value={bookingTime} onValueChange={setBookingTime}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose time slot" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {timeSlots.map((slot) => (
+                          <SelectItem key={slot.value} value={slot.value}>
+                            {slot.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ) : (
+                  /* Fixed Time Display for Tours */
+                  <div className="space-y-2">
+                    <Label>Tour Start Time</Label>
+                    <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                      <Clock className="h-4 w-4 text-blue-600" />
+                      <span className="font-medium text-blue-900">
+                        {firstTour?.fixed_start_time || 'Not set'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Participant Counter - Only for tours */}
+                {hasTours && (
+                  <div className="space-y-2">
+                    <Label htmlFor="participants">Number of Participants *</Label>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => setParticipantCount(Math.max(1, participantCount - 1))}
+                        disabled={participantCount <= 1}
+                      >
+                        -
+                      </Button>
+                      <div className="flex-1 text-center font-medium">
+                        {participantCount} {participantCount === 1 ? 'person' : 'people'}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => setParticipantCount(participantCount + 1)}
+                        disabled={firstTour?.max_participants_per_day ? participantCount >= firstTour.max_participants_per_day : false}
+                      >
+                        +
+                      </Button>
+                    </div>
+                    {firstTour?.max_participants_per_day && (
+                      <p className="text-xs text-muted-foreground">
+                        Maximum {firstTour.max_participants_per_day} participants per day
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 {/* Contact Information */}
                 <div className="space-y-3">
@@ -259,7 +324,11 @@ export function ShoppingCart({
             <div className="border-t bg-gray-50/50 p-3 space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold text-primary">Total</span>
-                <span className="text-lg font-semibold text-primary">€{totalPrice().toFixed(2)}</span>
+                <span className="text-lg font-semibold text-primary">
+                  €{hasTours && firstTour?.price_per_participant 
+                    ? (firstTour.price_per_participant * participantCount).toFixed(2)
+                    : totalPrice().toFixed(2)}
+                </span>
               </div>
               <Button 
                 className="w-full rounded-sm" 

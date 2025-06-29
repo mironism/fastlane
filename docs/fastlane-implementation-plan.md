@@ -222,13 +222,13 @@ Transform the existing QR code ordering system into an activity booking platform
      - ✅ WhatsApp contact info
      - ✅ Comments display when provided
 
-### 📝 8.6 Email Confirmation System
-- 📋 **Automated email confirmation**
-  - 📋 Booking details email template
-  - 📋 Professional email design
-  - 📋 Include booking number and QR code
-  - 📋 Next steps and contact information
-  - 📋 Integration with Supabase/email service
+### ✅ 8.6 Email Confirmation System
+- ✅ **Automated email confirmation**
+  - ✅ Booking details email template
+  - ✅ Professional email design
+  - ✅ Include booking number and QR code
+  - ✅ Next steps and contact information
+  - ✅ Integration with Supabase/email service
 
 ### ✅ 8.7 Database Schema Updates - COMPLETED
 - ✅ Add `customer_name` and `comments` fields to bookings table
@@ -236,6 +236,110 @@ Transform the existing QR code ordering system into an activity booking platform
 - ✅ Update all related components and hooks
 - ✅ Maintain backward compatibility with existing bookings
 - ✅ **Note**: `participant_count` kept for backward compatibility but defaults to 1
+
+---
+
+## 🚌 Phase 9: Enhanced Activity System with Tour Support - NEW FEATURE
+
+### **🎯 Objective**
+Enhance the existing activity creation flow to support tour operators (starting with RomanovTour) by adding activity types with specialized scheduling, fixed-time bookings, participant management, and capacity control - while maintaining the same familiar admin interface.
+
+### ✅ 9.1 Database Schema Enhancements - COMPLETED
+- ✅ **Activity type field**: Add `activity_type` enum ('regular', 'tour') to activities table
+- ✅ **Description field**: Use existing `description` field (already exists in schema!)
+- ✅ **Tour-specific fields** in activities table (NULL for regular activities):
+  - ✅ `active_days` (JSONB) - array of active weekdays [1,3,5] (Mon=1, Sun=7)
+  - ✅ `fixed_start_time` (TIME) - single start time for tour
+  - ✅ `price_per_participant` (DECIMAL) - per-person pricing
+  - ✅ `max_participants_per_day` (INTEGER) - daily capacity limit
+- ✅ **Booking updates**: Enhance participant tracking for tour bookings
+- ✅ **Capacity tracking**: Real-time participant count per date for tours
+
+### ✅ 9.2 Enhanced Admin Interface: Single Activity Creation Flow - COMPLETED
+- ✅ **Enhanced Activity Form** (same familiar interface):
+  - ✅ Basic fields (title, price, etc.) - EXISTING
+  - ✅ **NEW**: Optional description checkbox + textarea (use existing description field)
+  - ✅ **NEW**: Activity Type radio buttons: "Regular Activity" vs "Tour"
+  - ✅ **NEW**: Conditional tour fields (appear only when "Tour" selected)
+
+- ✅ **Tour-Specific Conditional Fields**:
+  - ✅ Weekly Schedule: 7-day checkbox grid (Monday-Sunday)
+  - ✅ Fixed Start Time: Time picker component
+  - ✅ Tour Duration: Hours input (uses existing duration_minutes field)
+  - ✅ Price per Participant: €-formatted input
+  - ✅ Maximum Participants per Day: Number input
+  - ✅ "Select All Weekdays" / "Select Weekends" helper buttons
+
+- ✅ **Form UX Enhancements**:
+  - ✅ Smooth conditional field animations
+  - ✅ Tour badge display in activity list
+  - ✅ Real-time validation for tour-specific fields
+  - ✅ Clear labeling and help text for new fields
+
+### ✅ 9.3 Customer Interface: Smart Activity Detection - COMPLETED
+- ✅ **Same Activity Display** (no visual changes to activity cards):
+  - ✅ Display description field only when present
+  - ✅ Smart tour vs regular activity pricing display
+  - ✅ Tour-specific info (start time, capacity) vs regular (duration, max participants)
+  - ✅ Smart detection happens behind the scenes
+
+- ✅ **Tour Booking Flow** (activated automatically for tour-type activities):
+  - 📋 **Smart Calendar**: Show only active weekdays for tours (needs implementation)
+  - ✅ **Fixed Time Display**: Show start time instead of time picker
+  - ✅ **Participant Counter**: Select number of participants (tours only)
+  - 📋 **Real-time Availability**: Check capacity before booking (needs implementation)
+  - ✅ **Auto-calculation**: Total price = participants × price per person
+
+- ✅ **Regular Activity Flow** (unchanged):
+  - ✅ Full calendar availability
+  - ✅ Time slot picker (9 AM - 6 PM)
+  - ✅ Single participant booking
+  - ✅ Fixed activity price
+
+### 📋 9.4 Smart Booking Logic & Validation
+- 📋 **Activity Type Detection**:
+  - 📋 Automatic detection of activity type in booking flow
+  - 📋 Switch to appropriate booking interface seamlessly
+  - 📋 No customer confusion - same entry point
+
+- 📋 **Tour-Specific Logic**:
+  - 📋 Calendar filtering to show only active weekdays
+  - 📋 Gray out dates when capacity reached
+  - 📋 Real-time capacity checking during booking
+  - 📋 Participant-based pricing calculations
+
+- 📋 **Regular Activity Logic** (unchanged):
+  - 📋 Standard calendar with all dates available
+  - 📋 Time slot availability checking
+  - 📋 Single booking confirmation
+
+### 📋 9.5 Enhanced Admin Management
+- 📋 **Activity Management Updates**:
+  - 📋 Activity type indicator in activity list
+  - 📋 Filter activities by type (All/Regular/Tours)
+  - 📋 Enhanced activity cards showing type-specific info
+
+- 📋 **Booking Management Enhancements**:
+  - 📋 Activity type display in booking cards
+  - 📋 Participant count display for tour bookings
+  - 📋 Capacity warnings for popular tour dates
+  - 📋 Filter bookings by activity type
+
+### 📋 9.6 Testing & Validation
+- 📋 **Enhanced Form Testing**:
+  - 📋 Test activity type selection and conditional fields
+  - 📋 Validate tour configuration saves correctly
+  - 📋 Test description field for all activity types
+
+- 📋 **Booking Flow Testing**:
+  - 📋 Test automatic detection and flow switching
+  - 📋 Validate tour calendar filtering and capacity checking
+  - 📋 Test regular activity flow remains unchanged
+
+- 📋 **Integration Testing**:
+  - 📋 End-to-end tour creation and booking with RomanovTour
+  - 📋 Backward compatibility with existing regular activities
+  - 📋 Mobile responsiveness for enhanced interfaces
 
 ---
 
@@ -249,6 +353,7 @@ Transform the existing QR code ordering system into an activity booking platform
 6. **Testing** (Phase 6) - Quality assurance
 7. **Deployment** (Phase 7) - Go live
 8. **UX Improvements** (Phase 8) - Enhanced user experience
+9. **Tour Activity System** (Phase 9) - Specialized tour functionality
 
 ---
 
@@ -268,4 +373,13 @@ Transform the existing QR code ordering system into an activity booking platform
 - 📋 **Simplified Booking Flow**: Intuitive date locking, streamlined contact form
 - 📋 **Enhanced Confirmation**: Better information hierarchy, next steps guidance
 - 📋 **Email Integration**: Automated booking confirmations
-- 📋 **Location Awareness**: Clear meeting point and directions 
+- 📋 **Location Awareness**: Clear meeting point and directions
+
+## 🚌 Tour System Success Criteria - MOSTLY ACHIEVED
+
+- ✅ **Tour Operator Ready**: RomanovTour can configure weekly schedules with fixed times
+- 📋 **Smart Calendar**: Customers see only available days based on tour schedule (needs calendar filtering)
+- 📋 **Capacity Control**: Automatic booking prevention when daily limits reached (needs capacity checking)
+- ✅ **Participant Management**: Clear participant counting and pricing calculation
+- ✅ **Dual System**: Regular activities and tours coexist seamlessly
+- 📋 **Admin Analytics**: Tour operators have visibility into capacity and performance (future enhancement) 

@@ -35,6 +35,11 @@ export const useCartStore = create<CartState>()(
             duration_minutes: activity.duration_minutes,
             meeting_point: activity.meeting_point,
             max_participants: activity.max_participants,
+            // Tour system fields
+            activity_type: activity.activity_type,
+            fixed_start_time: activity.fixed_start_time,
+            price_per_participant: activity.price_per_participant,
+            max_participants_per_day: activity.max_participants_per_day,
           }]
           
           return { items: newItems }

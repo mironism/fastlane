@@ -38,7 +38,12 @@ export function useVendor(vendorId: string) {
               duration_minutes,
               meeting_point,
               requirements,
-              max_participants
+              max_participants,
+              activity_type,
+              active_days,
+              fixed_start_time,
+              price_per_participant,
+              max_participants_per_day
             )
           )
         `)
