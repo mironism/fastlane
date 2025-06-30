@@ -178,22 +178,25 @@ export default function VendorPage({
                               />
                             </div>
                           )}
-                          <div className="flex-1 min-w-0 flex items-center gap-3">
-                            <div className="flex-1">
-                              <h3 className="font-medium text-sm leading-tight truncate">{activity.title}</h3>
+                          <div className="flex-1 min-w-0 flex items-start gap-2 sm:gap-3">
+                            <div className="flex-1 min-w-0">
+                              {/* Responsive title with width limits and line clamp */}
+                              <h3 className="font-medium text-xs sm:text-sm leading-tight line-clamp-2 max-w-[140px] sm:max-w-none">
+                                {activity.title}
+                              </h3>
                               {activity.description && (
-                                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1 sm:line-clamp-2">
                                   {activity.description}
                                 </p>
                               )}
-                              {/* Activity-specific details */}
-                              <div className="flex items-center gap-2 mt-1">
+                              {/* Activity-specific details with smaller fonts on mobile */}
+                              <div className="flex items-center gap-1 sm:gap-2 mt-1">
                                 {activity.activity_type === 'tour' ? (
                                   <>
                                     {activity.fixed_start_time && (
                                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                        <Clock className="h-3 w-3" />
-                                        <span>{formatTimeWithoutSeconds(activity.fixed_start_time)}</span>
+                                        <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                                        <span className="text-xs">{formatTimeWithoutSeconds(activity.fixed_start_time)}</span>
                                       </div>
                                     )}
                                     {activity.duration_minutes && (
@@ -206,8 +209,8 @@ export default function VendorPage({
                                   <>
                                     {activity.duration_minutes && (
                                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                        <Clock className="h-3 w-3" />
-                                        <span>{formatDurationHours(activity.duration_minutes)}</span>
+                                        <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                                        <span className="text-xs">{formatDurationHours(activity.duration_minutes)}</span>
                                       </div>
                                     )}
                                     {activity.max_participants && (
@@ -219,11 +222,11 @@ export default function VendorPage({
                                 )}
                               </div>
                             </div>
-                            {/* Fixed pricing layout to prevent overlap on mobile */}
-                            <div className="flex flex-col items-end gap-1 flex-shrink-0 min-w-0">
+                            {/* Improved pricing layout with better mobile spacing */}
+                            <div className="flex flex-col items-end gap-0.5 flex-shrink-0 min-w-0 mr-2">
                               {activity.activity_type === 'tour' && activity.price_per_participant ? (
                                 <>
-                                  <span className="font-semibold text-sm text-primary whitespace-nowrap">
+                                  <span className="font-semibold text-xs sm:text-sm text-primary whitespace-nowrap">
                                     €{activity.price_per_participant.toFixed(2)}
                                   </span>
                                   <span className="text-xs text-muted-foreground whitespace-nowrap">
@@ -231,7 +234,7 @@ export default function VendorPage({
                                   </span>
                                 </>
                               ) : (
-                                <span className="font-semibold text-sm text-primary whitespace-nowrap">
+                                <span className="font-semibold text-xs sm:text-sm text-primary whitespace-nowrap">
                                   €{activity.price.toFixed(2)}
                                 </span>
                               )}
@@ -241,16 +244,16 @@ export default function VendorPage({
                             <Button 
                               variant="outline" 
                               size="sm"
-                              className="h-8 w-8 p-0 rounded-sm shadow-sm bg-green-50 border-green-200 text-green-600 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all ml-3"
+                              className="h-7 w-7 sm:h-8 sm:w-8 p-0 rounded-sm shadow-sm bg-green-50 border-green-200 text-green-600 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all flex-shrink-0"
                               onClick={() => removeItem(activity.id)}
                             >
-                              <X className="h-4 w-4" />
+                              <X className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>
                           ) : (
                             <Button 
                               variant="outline" 
                               size="sm"
-                              className={`h-8 w-8 p-0 rounded-sm shadow-sm transition-all ml-3 ${
+                              className={`h-7 w-7 sm:h-8 sm:w-8 p-0 rounded-sm shadow-sm transition-all flex-shrink-0 ${
                                 hasItemsInCart 
                                   ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-200 text-gray-400' 
                                   : 'hover:shadow-md hover:bg-primary hover:text-primary-foreground'
@@ -258,7 +261,7 @@ export default function VendorPage({
                               onClick={() => !hasItemsInCart && addItemToCart(activity)}
                               disabled={hasItemsInCart}
                             >
-                              <Plus className="h-4 w-4" />
+                              <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>
                           )}
                         </div>
