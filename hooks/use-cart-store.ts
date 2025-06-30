@@ -29,6 +29,7 @@ export const useCartStore = create<CartState>()(
           const newItems = [{
             id: activity.id,
             title: activity.title,
+            description: activity.description,
             price: activity.price,
             image_url: activity.image_url,
             quantity: 1, // Always 1 for single activity booking
@@ -37,6 +38,7 @@ export const useCartStore = create<CartState>()(
             max_participants: activity.max_participants,
             // Tour system fields
             activity_type: activity.activity_type,
+            active_days: activity.active_days,
             fixed_start_time: activity.fixed_start_time,
             price_per_participant: activity.price_per_participant,
             max_participants_per_day: activity.max_participants_per_day,

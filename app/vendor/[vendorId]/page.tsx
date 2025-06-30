@@ -17,6 +17,7 @@ import { ShoppingCart } from '@/components/orders/shopping-cart';
 import { CartIndicator } from '@/components/orders/cart-indicator';
 import { EmptyState } from '@/components/ui/empty-state';
 import { useVendor } from '@/hooks/use-vendor';
+import { formatTimeWithoutSeconds, formatDurationHours } from '@/lib/utils';
 
 export default function VendorPage({ 
   params 
@@ -192,12 +193,12 @@ export default function VendorPage({
                                     {activity.fixed_start_time && (
                                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                         <Clock className="h-3 w-3" />
-                                        <span>{activity.fixed_start_time}</span>
+                                        <span>{formatTimeWithoutSeconds(activity.fixed_start_time)}</span>
                                       </div>
                                     )}
-                                    {activity.max_participants_per_day && (
+                                    {activity.duration_minutes && (
                                       <div className="text-xs text-muted-foreground">
-                                        Up to {activity.max_participants_per_day}/day
+                                        {formatDurationHours(activity.duration_minutes)}
                                       </div>
                                     )}
                                   </>
@@ -206,7 +207,7 @@ export default function VendorPage({
                                     {activity.duration_minutes && (
                                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                         <Clock className="h-3 w-3" />
-                                        <span>{activity.duration_minutes}min</span>
+                                        <span>{formatDurationHours(activity.duration_minutes)}</span>
                                       </div>
                                     )}
                                     {activity.max_participants && (
@@ -218,11 +219,23 @@ export default function VendorPage({
                                 )}
                               </div>
                             </div>
-                            <span className="font-semibold text-sm text-primary whitespace-nowrap">
-                              {activity.activity_type === 'tour' && activity.price_per_participant
-                                ? `€${activity.price_per_participant.toFixed(2)}/person`
-                                : `€${activity.price.toFixed(2)}`}
-                            </span>
+                            {/* Fixed pricing layout to prevent overlap on mobile */}
+                            <div className="flex flex-col items-end gap-1 flex-shrink-0 min-w-0">
+                              {activity.activity_type === 'tour' && activity.price_per_participant ? (
+                                <>
+                                  <span className="font-semibold text-sm text-primary whitespace-nowrap">
+                                    €{activity.price_per_participant.toFixed(2)}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                    per person
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="font-semibold text-sm text-primary whitespace-nowrap">
+                                  €{activity.price.toFixed(2)}
+                                </span>
+                              )}
+                            </div>
                           </div>
                           {isActivityInCart(activity.id) ? (
                             <Button 

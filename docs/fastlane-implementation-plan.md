@@ -381,5 +381,4 @@ Enhance the existing activity creation flow to support tour operators (starting 
 - 📋 **Smart Calendar**: Customers see only available days based on tour schedule (needs calendar filtering)
 - 📋 **Capacity Control**: Automatic booking prevention when daily limits reached (needs capacity checking)
 - ✅ **Participant Management**: Clear participant counting and pricing calculation
-- ✅ **Dual System**: Regular activities and tours coexist seamlessly
-- 📋 **Admin Analytics**: Tour operators have visibility into capacity and performance (future enhancement) 
+- ✅ **Dual System**: Regular activities and tours coexist seamlessly 

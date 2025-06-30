@@ -3,6 +3,7 @@
 import { Booking } from '@/lib/types'
 import { format } from 'date-fns'
 import { Calendar, Clock, Users, MessageCircle, User } from 'lucide-react'
+import { formatTimeWithoutSeconds } from '@/lib/utils'
 
 interface BookingCardProps {
   order: Booking;
@@ -42,7 +43,7 @@ export function OrderCard({ order, actionSlot }: BookingCardProps) {
                   <Calendar className="h-3 w-3" />
                   <span>{format(new Date(order.booking_date), "MMM d, yyyy")}</span>
                   <Clock className="h-3 w-3 ml-2" />
-                  <span>{format(new Date(`2000-01-01T${order.booking_time}`), "h:mm a")}</span>
+                  <span>{formatTimeWithoutSeconds(order.booking_time)}</span>
                 </div>
               )}
               

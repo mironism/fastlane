@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Calendar, Clock, Users, Mail, MapPin, MessageCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
+import { formatTimeWithoutSeconds } from '@/lib/utils'
 
 interface SimpleBooking {
   id: string
@@ -179,7 +180,7 @@ export default function BookingsPage() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="h-4 w-4" />
-                      <span>{format(new Date(`2000-01-01T${booking.booking_time}`), "h:mm a")}</span>
+                      <span>{formatTimeWithoutSeconds(booking.booking_time)}</span>
                     </div>
                   </>
                 )}

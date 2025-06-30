@@ -21,6 +21,7 @@ import { useCheckout, BookingData } from '@/hooks/use-checkout'
 import { Card } from '@/components/ui/card'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
+import { formatTimeWithoutSeconds, formatDurationHours } from '@/lib/utils'
 
 export function ShoppingCart({
   open,
@@ -64,6 +65,23 @@ export function ShoppingCart({
   // Check if any items are tours
   const hasTours = items.some(item => item.activity_type === 'tour')
   const firstTour = items.find(item => item.activity_type === 'tour')
+
+  // Smart date filtering for tours based on active_days
+  const isDateDisabled = (date: Date) => {
+    // Always disable past dates
+    if (date < new Date()) return true;
+    if (date < new Date("1900-01-01")) return true;
+    
+    // If it's a tour with active_days configuration, filter by weekdays
+    if (hasTours && firstTour?.active_days && firstTour.active_days.length > 0) {
+      const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+      const dayNumber = dayOfWeek === 0 ? 7 : dayOfWeek; // Convert to 1-7 format (1=Monday, 7=Sunday)
+      return !firstTour.active_days.includes(dayNumber);
+    }
+    
+    // For regular activities, no additional restrictions
+    return false;
+  };
 
   const handleSubmitBooking = async () => {
     if (!bookingDate || (!hasTours && !bookingTime) || !customerName || !customerEmail || !customerWhatsapp) {
@@ -125,6 +143,11 @@ export function ShoppingCart({
                       
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-sm truncate">{item.title}</h4>
+                        {item.description && (
+                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                            {item.description}
+                          </p>
+                        )}
                         <p className="text-xs text-muted-foreground">
                           {item.activity_type === 'tour' && item.price_per_participant
                             ? `€${item.price_per_participant.toFixed(2)}/person`
@@ -133,12 +156,12 @@ export function ShoppingCart({
                         {item.activity_type === 'tour' && item.fixed_start_time ? (
                           <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                             <Clock className="h-3 w-3" />
-                            <span>{item.fixed_start_time}</span>
+                            <span>{formatTimeWithoutSeconds(item.fixed_start_time)}</span>
                           </div>
                         ) : item.duration_minutes && (
                           <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                             <Clock className="h-3 w-3" />
-                            <span>{item.duration_minutes}min</span>
+                            <span>{formatDurationHours(item.duration_minutes)}</span>
                           </div>
                         )}
                       </div>
@@ -181,7 +204,7 @@ export function ShoppingCart({
                         mode="single"
                         selected={bookingDate}
                         onSelect={handleDateSelect}
-                        disabled={(date) => date < new Date() || date < new Date("1900-01-01")}
+                        disabled={isDateDisabled}
                         initialFocus
                       />
                     </PopoverContent>
@@ -212,7 +235,7 @@ export function ShoppingCart({
                     <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
                       <Clock className="h-4 w-4 text-blue-600" />
                       <span className="font-medium text-blue-900">
-                        {firstTour?.fixed_start_time || 'Not set'}
+                        {firstTour?.fixed_start_time ? formatTimeWithoutSeconds(firstTour.fixed_start_time) : 'Not set'}
                       </span>
                     </div>
                   </div>
@@ -306,16 +329,18 @@ export function ShoppingCart({
                      />
                    </div>
 
-                   {/* Booking Conditions */}
-                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                     <h5 className="text-xs font-semibold text-amber-800 mb-2">Booking Conditions</h5>
-                     <div className="text-xs text-amber-700 space-y-1">
-                       <p>• This booking is <strong>not financially binding</strong></p>
-                       <p>• Payment will be collected at the activity location</p>
-                       <p>• Please arrive 15 minutes before your scheduled time</p>
-                       <p>• Bring cash or card for payment</p>
+                   {/* Booking Conditions - Only for regular activities */}
+                   {!hasTours && (
+                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                       <h5 className="text-xs font-semibold text-amber-800 mb-2">Booking Conditions</h5>
+                       <div className="text-xs text-amber-700 space-y-1">
+                         <p>• This booking is <strong>not financially binding</strong></p>
+                         <p>• Payment will be collected at the activity location</p>
+                         <p>• Please arrive 15 minutes before your scheduled time</p>
+                         <p>• Bring cash or card for payment</p>
+                       </div>
                      </div>
-                   </div>
+                   )}
                 </div>
               </div>
             </div>

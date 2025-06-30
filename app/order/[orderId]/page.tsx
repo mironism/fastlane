@@ -9,6 +9,7 @@ import { Booking } from '@/lib/types';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, Users, Mail, MessageCircle, MapPin, User } from 'lucide-react';
+import { formatTimeWithoutSeconds } from '@/lib/utils';
 
 function BookingConfirmationSkeleton() {
     return (
@@ -126,7 +127,7 @@ export default function BookingConfirmationPage() {
               
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="h-4 w-4 text-primary" />
-                <span className="font-medium">{format(new Date(`2000-01-01T${booking.booking_time}`), "h:mm a")}</span>
+                <span className="font-medium">{formatTimeWithoutSeconds(booking.booking_time)}</span>
               </div>
             </div>
 

@@ -82,6 +82,7 @@ export type Order = Booking;
 export type CartItem = {
   id: string; // This is the activity_id
   title: string;
+  description?: string | null;
   price: number;
   image_url: string | null;
   quantity: number;
@@ -91,6 +92,7 @@ export type CartItem = {
   max_participants?: number;
   // Tour system additions
   activity_type?: 'regular' | 'tour';
+  active_days?: number[] | null; // [1,2,3,4,5,6,7] where 1=Monday, 7=Sunday
   fixed_start_time?: string | null;
   price_per_participant?: number | null;
   max_participants_per_day?: number | null;

@@ -15,11 +15,13 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Pencil, PlusCircle, Trash2, ImageIcon, Clock, Users, MapPin, Calendar, CircuitBoard } from 'lucide-react'
 import { useActivities } from '@/hooks/use-activities'
+import { useCategories } from '@/hooks/use-categories'
 import { Activity } from '@/lib/types'
 import { Skeleton } from '../ui/skeleton'
 import { cn } from '@/lib/utils'
 import { EmptyState } from '../ui/empty-state'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { formatTimeWithoutSeconds, formatDurationHours } from '@/lib/utils'
 
 export function MenuItemManager() {
   const { loading, categories, groupedItems, addItem, updateItem, deleteItem } = useActivities();
@@ -284,7 +286,7 @@ export function MenuItemManager() {
                               {item.activity_type === 'tour' && item.fixed_start_time && (
                                 <div className="flex items-center gap-1">
                                   <Clock className="h-3 w-3" />
-                                  <span>{item.fixed_start_time}</span>
+                                  <span>{formatTimeWithoutSeconds(item.fixed_start_time)}</span>
                                 </div>
                               )}
                               {item.activity_type === 'tour' && item.active_days && (
@@ -296,7 +298,7 @@ export function MenuItemManager() {
                               {item.activity_type === 'regular' && item.duration_minutes && (
                                 <div className="flex items-center gap-1">
                                   <Clock className="h-3 w-3" />
-                                  <span>{item.duration_minutes}min</span>
+                                  <span>{formatDurationHours(item.duration_minutes)}</span>
                                 </div>
                               )}
                               {item.max_participants && item.activity_type === 'regular' && (
