@@ -111,20 +111,40 @@ export function useCheckout() {
 
       // 3. All checks passed, proceed with booking creation
       console.log('🔍 Step 3: Creating booking details...');
+      
+      // Check if this is a tour booking to calculate correct pricing
+      const hasTours = items.some(item => item.activity_type === 'tour');
+      const participantCount = bookingData.participant_count || 1;
+      
       const bookingDetails = items.map(item => ({
         activity_id: item.id,
         quantity: item.quantity,
         name: item.title,
-        price_at_purchase: item.price,
+        // Use correct price for tours vs regular activities
+        price_at_purchase: item.activity_type === 'tour' && item.price_per_participant 
+          ? item.price_per_participant 
+          : item.price,
       }));
       
       console.log('📦 Booking details structured:', bookingDetails);
+      
+      // Calculate correct total price for tours vs regular activities
+      const calculateTotalPrice = () => {
+        return items.reduce((total, item) => {
+          if (item.activity_type === 'tour' && item.price_per_participant) {
+            // For tours: price per participant × participant count
+            return total + (item.price_per_participant * participantCount);
+          }
+          // For regular activities: normal price × quantity
+          return total + (item.price * item.quantity);
+        }, 0);
+      };
       
       // Complete booking data for insert
       const insertData = {
         vendor_id: vendorId,
         booking_details: bookingDetails,
-        total_price: totalPrice(),
+        total_price: calculateTotalPrice(), // Use correct tour pricing calculation
         booking_date: bookingData.booking_date,
         booking_time: bookingData.booking_time,
         customer_email: bookingData.customer_email,

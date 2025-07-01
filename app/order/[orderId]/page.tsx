@@ -108,11 +108,15 @@ export default function BookingConfirmationPage() {
                   <div className="flex-1">
                     <p className="font-medium">{item.name}</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {item.quantity} × €{item.price_at_purchase.toFixed(2)}
+                      {booking.participant_count && booking.participant_count > 1 
+                        ? `${booking.participant_count} participants × €${item.price_at_purchase.toFixed(2)}/person`
+                        : `${item.quantity} × €${item.price_at_purchase.toFixed(2)}`}
                     </p>
                   </div>
                   <p className="font-mono font-medium ml-4">
-                    €{(item.quantity * item.price_at_purchase).toFixed(2)}
+                    €{booking.participant_count && booking.participant_count > 1 
+                      ? (booking.participant_count * item.price_at_purchase).toFixed(2)
+                      : (item.quantity * item.price_at_purchase).toFixed(2)}
                   </p>
                 </div>
               ))}

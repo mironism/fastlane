@@ -197,7 +197,11 @@ export default function BookingsPage() {
             <div className="space-y-2">
               {detailsArray.map((detail, index) => (
                 <div key={index} className="flex justify-between items-center">
-                  <span className="font-medium">{detail.quantity}x {detail.name}</span>
+                  <span className="font-medium">
+                    {booking.participant_count && booking.participant_count > 1
+                      ? `${booking.participant_count} participants - ${detail.name}`
+                      : `${detail.quantity}x ${detail.name}`}
+                  </span>
                 </div>
               ))}
             </div>
@@ -205,7 +209,7 @@ export default function BookingsPage() {
             {/* Price and Actions */}
             <div className="flex justify-between items-center pt-2 border-t">
               <div className="text-xl font-bold">
-                ${booking.total_price?.toFixed(2) || '0.00'}
+                €{booking.total_price?.toFixed(2) || '0.00'}
               </div>
               <div className="flex gap-2">
                 {booking.is_fulfilled ? (
