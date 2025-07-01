@@ -149,30 +149,53 @@ export default function BookingConfirmationPage() {
               Next Steps
             </h3>
             
-            <div className="space-y-3 text-sm">
-              <div className="flex items-start gap-2">
-                <span className="bg-blue-100 text-blue-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
-                <p><strong>Arrive 15 minutes early</strong> at the meeting point for check-in</p>
+            {/* Tour-specific messaging for bookings with multiple participants */}
+            {booking.participant_count && booking.participant_count > 1 ? (
+              <div className="space-y-3 text-sm">
+                <div className="flex items-start gap-2">
+                  <span className="bg-blue-100 text-blue-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">📞</span>
+                  <p><strong>Tour operator team will contact you</strong> and provide all necessary details and next steps.</p>
+                </div>
+                
+                <div className="flex items-start gap-2">
+                  <span className="bg-blue-100 text-blue-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">🎯</span>
+                  <p><strong>Enjoy your tour experience!</strong> All arrangements will be handled by the tour operator.</p>
+                </div>
+                
+                <div className="flex items-start gap-2">
+                  <span className="bg-blue-100 text-blue-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">💬</span>
+                  <p><strong>Questions?</strong> Contact them via WhatsApp using the number provided.</p>
+                </div>
               </div>
-              
-              <div className="flex items-start gap-2">
-                <span className="bg-blue-100 text-blue-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
-                <p><strong>Bring cash or card</strong> for payment (payment due at location)</p>
+            ) : (
+              /* Regular activity instructions */
+              <div className="space-y-3 text-sm">
+                <div className="flex items-start gap-2">
+                  <span className="bg-blue-100 text-blue-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
+                  <p><strong>Arrive 15 minutes early</strong> at the meeting point for check-in</p>
+                </div>
+                
+                <div className="flex items-start gap-2">
+                  <span className="bg-blue-100 text-blue-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
+                  <p><strong>Bring cash or card</strong> for payment (payment due at location)</p>
+                </div>
+                
+                <div className="flex items-start gap-2">
+                  <span className="bg-blue-100 text-blue-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
+                  <p><strong>Show this confirmation</strong> to the activity provider</p>
+                </div>
               </div>
-              
-              <div className="flex items-start gap-2">
-                <span className="bg-blue-100 text-blue-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
-                <p><strong>Show this confirmation</strong> to the activity provider</p>
-              </div>
-            </div>
+            )}
 
-            {/* Booking Conditions Reminder */}
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
-              <h5 className="text-xs font-semibold text-amber-800 mb-2">Important Reminder</h5>
-              <p className="text-xs text-amber-700">
-                This booking is <strong>not financially binding</strong>. Payment will be collected at the activity location.
-              </p>
-            </div>
+            {/* Booking Conditions Reminder - Only for regular activities */}
+            {(!booking.participant_count || booking.participant_count <= 1) && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
+                <h5 className="text-xs font-semibold text-amber-800 mb-2">Important Reminder</h5>
+                <p className="text-xs text-amber-700">
+                  This booking is <strong>not financially binding</strong>. Payment will be collected at the activity location.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* 3. LOCATION INFORMATION */}
