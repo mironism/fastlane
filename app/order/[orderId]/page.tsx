@@ -38,7 +38,7 @@ function BookingConfirmationSkeleton() {
 export default function BookingConfirmationPage() {
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
-;
+  const [isTourBooking, setIsTourBooking] = useState(false);
   const params = useParams();
   const bookingId = params.orderId as string; // Keep orderId for backward compatibility
 
@@ -47,7 +47,7 @@ export default function BookingConfirmationPage() {
       if (!bookingId) {
         setLoading(false);
         return;
-      };
+      }
 
       const { data, error } = await supabase
         .from('bookings')
@@ -57,9 +57,27 @@ export default function BookingConfirmationPage() {
       
       if (error || !data) {
         setBooking(null);
-      } else {
-        setBooking(data);
+        setLoading(false);
+        return;
       }
+
+      setBooking(data);
+
+      // Check if this is a tour booking by looking up the activity details
+      if (data.booking_details && data.booking_details.length > 0) {
+        const firstActivityId = data.booking_details[0].activity_id;
+        
+        const { data: activityData, error: activityError } = await supabase
+          .from('activities')
+          .select('activity_type')
+          .eq('id', firstActivityId)
+          .single();
+        
+        if (!activityError && activityData?.activity_type === 'tour') {
+          setIsTourBooking(true);
+        }
+      }
+      
       setLoading(false);
     };
     checkBooking();
@@ -150,7 +168,7 @@ export default function BookingConfirmationPage() {
             </h3>
             
             {/* Tour-specific messaging for bookings with multiple participants */}
-            {booking.participant_count && booking.participant_count > 1 ? (
+            {isTourBooking ? (
               <div className="space-y-3 text-sm">
                 <div className="flex items-start gap-2">
                   <span className="bg-blue-100 text-blue-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">📞</span>
@@ -188,7 +206,7 @@ export default function BookingConfirmationPage() {
             )}
 
             {/* Booking Conditions Reminder - Only for regular activities */}
-            {(!booking.participant_count || booking.participant_count <= 1) && (
+            {!isTourBooking && (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
                 <h5 className="text-xs font-semibold text-amber-800 mb-2">Important Reminder</h5>
                 <p className="text-xs text-amber-700">
