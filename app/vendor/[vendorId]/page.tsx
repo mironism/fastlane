@@ -192,15 +192,15 @@ function ActivityList({ vendor, isActivityInCart, addItemToCart, removeItem, has
                     key={activity.id} 
                     className="group hover:shadow-md transition-all duration-200 overflow-hidden border-gray-100 py-0"
                   >
-                    <div className="flex items-center p-3">
+                    <div className="flex items-center p-4">
                       {activity.image_url && (
-                        <div className="relative w-10 h-10 rounded-sm overflow-hidden bg-gray-100 flex-shrink-0 mr-3">
+                        <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 mr-4">
                           <Image
                             src={activity.image_url}
                             alt={activity.title}
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-200"
-                            sizes="40px"
+                            sizes="(max-width: 640px) 48px, 64px"
                           />
                         </div>
                       )}
