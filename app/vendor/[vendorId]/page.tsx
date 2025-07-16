@@ -211,7 +211,7 @@ function ActivityList({ vendor, isActivityInCart, addItemToCart, removeItem, has
                             {activity.title}
                           </h3>
                           {activity.description && (
-                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1 sm:line-clamp-2">
+                            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                               {activity.description}
                             </p>
                           )}
