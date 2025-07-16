@@ -24,7 +24,11 @@ export function formatCurrency(amount: number, currencyCode: string = 'EUR'): st
   }
   
   const decimals = currency.decimal_places;
-  const formattedAmount = amount.toFixed(decimals);
+  // Use toLocaleString for proper number formatting with commas
+  const formattedAmount = amount.toLocaleString('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
   
   // Handle different currency symbol positions
   switch (currencyCode) {
