@@ -10,6 +10,189 @@ import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, Users, Mail, MessageCircle, MapPin, User } from 'lucide-react';
 import { formatTimeWithoutSeconds } from '@/lib/utils';
+import { CurrencyProvider, useCurrency } from '@/contexts/CurrencyContext';
+
+// Inner component that uses currency context
+function BookingContent({ booking, isTourBooking }: { booking: Booking; isTourBooking: boolean }) {
+  const { formatPrice } = useCurrency();
+  
+  return (
+    <Card className="w-full shadow-xl">
+      <CardHeader className="text-center">
+        <CardTitle className="text-2xl font-bold text-primary">
+          Booking Confirmed ✓
+        </CardTitle>
+        <CardDescription className="text-base">
+          Your booking has been successfully submitted
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Booking ID */}
+        <div className="text-center">
+          <div className="text-xs text-muted-foreground uppercase tracking-wide">
+            Booking ID
+          </div>
+          <div className="text-sm font-mono font-medium mt-1">
+            {booking.booking_number}
+          </div>
+        </div>
+
+        {/* Status */}
+        <div className="text-center">
+          <Badge 
+            variant={booking.is_fulfilled ? "default" : "secondary"}
+            className="font-mono text-xs"
+          >
+            {booking.is_fulfilled ? "CONFIRMED" : "PENDING"}
+          </Badge>
+        </div>
+
+        {/* 1. BOOKED ACTIVITIES - Grouped at top */}
+        <div className="space-y-4 bg-primary/5 p-4 rounded-lg">
+          <h3 className="font-semibold text-sm">Booked Activities</h3>
+          
+          {/* Activity Details */}
+          <div className="space-y-3">
+            {booking.booking_details.map((item, index) => (
+              <div key={index} className="flex justify-between items-start text-sm">
+                <div className="flex-1">
+                  <p className="font-medium">{item.name}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {booking.participant_count && booking.participant_count > 1 
+                      ? `${booking.participant_count} participants × ${formatPrice(item.price_at_purchase)}/person`
+                      : `${item.quantity} × ${formatPrice(item.price_at_purchase)}`}
+                  </p>
+                </div>
+                <p className="font-mono font-medium ml-4">
+                  {booking.participant_count && booking.participant_count > 1 
+                    ? formatPrice(booking.participant_count * item.price_at_purchase)
+                    : formatPrice(item.quantity * item.price_at_purchase)}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Date and Time */}
+          <div className="space-y-2 pt-2 border-t border-primary/20">
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="h-4 w-4 text-primary" />
+              <span className="font-medium">{format(new Date(booking.booking_date), "EEEE, MMMM d, yyyy")}</span>
+            </div>
+            
+            <div className="flex items-center gap-2 text-sm">
+              <Clock className="h-4 w-4 text-primary" />
+              <span className="font-medium">{formatTimeWithoutSeconds(booking.booking_time)}</span>
+            </div>
+          </div>
+
+          {/* Total */}
+          <div className="flex justify-between items-center pt-2 border-t border-primary/20">
+            <span className="font-bold text-lg">Total</span>
+            <span className="font-mono font-bold text-lg">{formatPrice(booking.total_price)}</span>
+          </div>
+        </div>
+
+        {/* 2. NEXT STEPS */}
+        <div className="space-y-4 bg-blue-50 p-4 rounded-lg">
+          <h3 className="font-semibold text-sm flex items-center gap-2">
+            <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">→</span>
+            Next Steps
+          </h3>
+          
+          <div className="space-y-3 text-sm">
+            <p>
+              <strong>1. Show this confirmation</strong> to the activity provider when you arrive
+            </p>
+            
+            <p>
+              <strong>2. Arrive 15 minutes early</strong> at the specified meeting point
+            </p>
+            
+            <p>
+              <strong>3. {isTourBooking ? 'Tour starts' : 'Activity begins'}</strong> at your scheduled time
+            </p>
+          </div>
+        </div>
+
+        {/* 3. CONTACT INFO */}
+        <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+          <h3 className="font-semibold text-sm flex items-center gap-2">
+            <span className="bg-gray-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">i</span>
+            Contact Information
+          </h3>
+          
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">Email:</span>
+              <span className="font-mono text-xs">{booking.customer_email}</span>
+            </div>
+            
+            {booking.customer_name && (
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Name:</span>
+                <span>{booking.customer_name}</span>
+              </div>
+            )}
+            
+            {booking.customer_whatsapp && (
+              <div className="flex items-center gap-2">
+                <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">WhatsApp:</span>
+                <span className="font-mono text-xs">{booking.customer_whatsapp}</span>
+              </div>
+            )}
+            
+            {booking.participant_count && booking.participant_count > 1 && (
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Participants:</span>
+                <span>{booking.participant_count} people</span>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* 4. IMPORTANT NOTES */}
+        <div className="space-y-4 bg-amber-50 p-4 rounded-lg">
+          <h3 className="font-semibold text-sm flex items-center gap-2">
+            <span className="bg-amber-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">!</span>
+            Important Notes
+          </h3>
+          
+          <div className="space-y-3 text-sm">
+            <p>
+              <strong>• Payment:</strong> This booking is not financially binding. Payment will be collected at the activity location.
+            </p>
+            
+            <p>
+              <strong>• Cancellation:</strong> Please contact the activity provider directly if you need to cancel or reschedule.
+            </p>
+            
+            <p>
+              <strong>• Weather:</strong> {isTourBooking ? 'Tours' : 'Activities'} may be cancelled due to weather conditions. You'll be notified in advance.
+            </p>
+          </div>
+        </div>
+        
+        {/* 5. BOOKING SUMMARY */}
+        {booking.comments && (
+          <div className="space-y-4 bg-green-50 p-4 rounded-lg">
+            <h3 className="font-semibold text-sm flex items-center gap-2">
+              <span className="bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">💬</span>
+              Your Message
+            </h3>
+            
+            <p className="text-sm italic">
+              "{booking.comments}"
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 function BookingConfirmationSkeleton() {
     return (
@@ -39,6 +222,7 @@ export default function BookingConfirmationPage() {
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [isTourBooking, setIsTourBooking] = useState(false);
+  const [vendorCurrency, setVendorCurrency] = useState<string>('EUR');
   const params = useParams();
   const bookingId = params.orderId as string; // Keep orderId for backward compatibility
 
@@ -62,6 +246,17 @@ export default function BookingConfirmationPage() {
       }
 
       setBooking(data);
+
+      // Get vendor currency
+      const { data: vendorData, error: vendorError } = await supabase
+        .from('vendors')
+        .select('currency')
+        .eq('id', data.vendor_id)
+        .single();
+      
+      if (vendorData && !vendorError) {
+        setVendorCurrency(vendorData.currency || 'EUR');
+      }
 
       // Check if this is a tour booking by looking up the activity details
       if (data.booking_details && data.booking_details.length > 0) {
@@ -92,185 +287,11 @@ export default function BookingConfirmationPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-md p-4 flex justify-center items-center min-h-screen">
-      <Card className="w-full shadow-xl">
-        {/* Booking Header */}
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl font-mono">
-            BOOKING {booking.booking_number}
-          </CardTitle>
-          <p className="text-sm text-muted-foreground mt-1">
-            {format(new Date(booking.created_at), "MMM d, yyyy 'at' h:mm a")}
-          </p>
-        </CardHeader>
-        
-        <CardContent className="space-y-6">
-          {/* Status */}
-          <div className="flex justify-center">
-            <Badge 
-              variant={booking.is_fulfilled ? "default" : "secondary"}
-              className="font-mono text-xs"
-            >
-              {booking.is_fulfilled ? "CONFIRMED" : "PENDING"}
-            </Badge>
-          </div>
-
-          {/* 1. BOOKED ACTIVITIES - Grouped at top */}
-          <div className="space-y-4 bg-primary/5 p-4 rounded-lg">
-            <h3 className="font-semibold text-sm">Booked Activities</h3>
-            
-            {/* Activity Details */}
-            <div className="space-y-3">
-              {booking.booking_details.map((item, index) => (
-                <div key={index} className="flex justify-between items-start text-sm">
-                  <div className="flex-1">
-                    <p className="font-medium">{item.name}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {booking.participant_count && booking.participant_count > 1 
-                        ? `${booking.participant_count} participants × €${item.price_at_purchase.toFixed(2)}/person`
-                        : `${item.quantity} × €${item.price_at_purchase.toFixed(2)}`}
-                    </p>
-                  </div>
-                  <p className="font-mono font-medium ml-4">
-                    €{booking.participant_count && booking.participant_count > 1 
-                      ? (booking.participant_count * item.price_at_purchase).toFixed(2)
-                      : (item.quantity * item.price_at_purchase).toFixed(2)}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            {/* Date and Time */}
-            <div className="space-y-2 pt-2 border-t border-primary/20">
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-primary" />
-                <span className="font-medium">{format(new Date(booking.booking_date), "EEEE, MMMM d, yyyy")}</span>
-              </div>
-              
-              <div className="flex items-center gap-2 text-sm">
-                <Clock className="h-4 w-4 text-primary" />
-                <span className="font-medium">{formatTimeWithoutSeconds(booking.booking_time)}</span>
-              </div>
-            </div>
-
-            {/* Total */}
-            <div className="flex justify-between items-center pt-2 border-t border-primary/20">
-              <span className="font-bold text-lg">Total</span>
-              <span className="font-mono font-bold text-lg">€{booking.total_price.toFixed(2)}</span>
-            </div>
-          </div>
-
-          {/* 2. NEXT STEPS */}
-          <div className="space-y-4 bg-blue-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-sm flex items-center gap-2">
-              <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">→</span>
-              Next Steps
-            </h3>
-            
-            {/* Tour-specific messaging for bookings with multiple participants */}
-            {isTourBooking ? (
-              <div className="space-y-3 text-sm">
-                <div className="flex items-start gap-2">
-                  <span className="bg-blue-100 text-blue-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">📞</span>
-                  <p><strong>Tour operator team will contact you</strong> and provide all necessary details and next steps.</p>
-                </div>
-                
-                <div className="flex items-start gap-2">
-                  <span className="bg-blue-100 text-blue-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">🎯</span>
-                  <p><strong>Enjoy your tour experience!</strong> All arrangements will be handled by the tour operator.</p>
-                </div>
-              </div>
-            ) : (
-              /* Regular activity instructions */
-              <div className="space-y-3 text-sm">
-                <div className="flex items-start gap-2">
-                  <span className="bg-blue-100 text-blue-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
-                  <p><strong>Arrive 15 minutes early</strong> at the meeting point for check-in</p>
-                </div>
-                
-                <div className="flex items-start gap-2">
-                  <span className="bg-blue-100 text-blue-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
-                  <p><strong>Bring cash or card</strong> for payment (payment due at location)</p>
-                </div>
-                
-                <div className="flex items-start gap-2">
-                  <span className="bg-blue-100 text-blue-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
-                  <p><strong>Show this confirmation</strong> to the activity provider</p>
-                </div>
-              </div>
-            )}
-
-            {/* Booking Conditions Reminder - Only for regular activities */}
-            {!isTourBooking && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
-                <h5 className="text-xs font-semibold text-amber-800 mb-2">Important Reminder</h5>
-                <p className="text-xs text-amber-700">
-                  This booking is <strong>not financially binding</strong>. Payment will be collected at the activity location.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* 3. LOCATION INFORMATION */}
-          <div className="space-y-4 bg-green-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-sm flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-green-600" />
-              Location & Meeting Point
-            </h3>
-            
-            <div className="space-y-2 text-sm">
-              <p className="text-muted-foreground">
-                Meeting point details will be provided by the activity provider.
-              </p>
-              <p className="text-xs text-green-700">
-                <strong>Tip:</strong> Contact the provider via WhatsApp for specific directions if needed.
-              </p>
-            </div>
-          </div>
-
-          {/* 4. CONTACT INFORMATION - Moved to bottom */}
-          <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-sm">Your Contact Information</h3>
-            
-            <div className="space-y-3 text-sm">
-              {booking.customer_name && (
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span>{booking.customer_name}</span>
-                </div>
-              )}
-              
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <span className="break-all">{booking.customer_email}</span>
-              </div>
-              
-              {booking.customer_whatsapp && (
-                <div className="flex items-center gap-2">
-                  <MessageCircle className="h-4 w-4 text-muted-foreground" />
-                  <span>{booking.customer_whatsapp}</span>
-                </div>
-              )}
-
-              {booking.comments && (
-                <div className="pt-2 border-t border-gray-200">
-                  <p className="text-xs text-muted-foreground mb-1">Your Comments:</p>
-                  <p className="text-sm">{booking.comments}</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="space-y-6">
-            <div className="border-b-2 border-dashed border-gray-300" />
-            <div className="text-center space-y-2">
-              <p className="text-xs text-muted-foreground">Please save this confirmation for your records</p>
-              <p className="text-xs text-muted-foreground font-semibold">THANK YOU FOR YOUR BOOKING! 🏖️</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <CurrencyProvider currencyCode={vendorCurrency}>
+      <div className="container mx-auto max-w-md p-4 flex justify-center items-center min-h-screen">
+        <BookingContent booking={booking} isTourBooking={isTourBooking} />
+      </div>
+    </CurrencyProvider>
   );
-} 
+}
+        {/* Booking Header */}

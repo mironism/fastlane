@@ -16,6 +16,7 @@ export function useVendorProfile() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
+  const [currency, setCurrency] = useState('EUR');
   const [howToBook, setHowToBook] = useState('');
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
   const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
@@ -50,6 +51,7 @@ export function useVendorProfile() {
         setName(data.name || '');
         setDescription(data.description || '');
         setLocation(data.location || '');
+        setCurrency(data.currency || 'EUR');
         setHowToBook(data.how_to_book || '');
         setProfilePicturePreview(data.profile_picture_url || null);
         setCoverImagePreview(data.cover_image_url || null);
@@ -151,6 +153,7 @@ export function useVendorProfile() {
         name,
         description,
         location,
+        currency,
         how_to_book: howToBook,
         profile_picture_url: profilePictureUrl,
         cover_image_url: coverImageUrl,
@@ -176,6 +179,8 @@ export function useVendorProfile() {
     setDescription,
     location,
     setLocation,
+    currency,
+    setCurrency,
     howToBook,
     setHowToBook,
     profilePicturePreview,

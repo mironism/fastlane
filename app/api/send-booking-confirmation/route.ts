@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { formatCurrency } from '@/lib/currency';
 
 interface BookingEmailRequest {
   bookingId: string;
@@ -42,6 +43,7 @@ export async function POST(request: NextRequest) {
           name,
           description,
           location,
+          currency,
           profile_picture_url
         )
       `)
@@ -141,13 +143,13 @@ export async function POST(request: NextRequest) {
                <div class="activity-item">
                  <div class="activity-title">${item.name}</div>
                  <div class="quantity-text">Quantity: ${item.quantity}</div>
-                 <div class="activity-price">€${item.price_at_purchase.toFixed(2)}</div>
+                 <div class="activity-price">${formatCurrency(item.price_at_purchase, booking.vendor?.currency || 'EUR')}</div>
                </div>
              `).join('')}
             
             <!-- Total -->
             <div class="total-section">
-              <div class="total-price">Total: €${booking.total_price.toFixed(2)}</div>
+              <div class="total-price">Total: ${formatCurrency(booking.total_price, booking.vendor?.currency || 'EUR')}</div>
             </div>
           </div>
 

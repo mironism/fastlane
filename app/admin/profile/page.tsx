@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { User, Pencil, Image as ImageIcon } from 'lucide-react'
 import { useVendorProfile } from '@/hooks/use-vendor-profile'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -18,6 +19,8 @@ export default function ProfilePage() {
     setDescription,
     location,
     setLocation,
+    currency,
+    setCurrency,
     howToBook,
     setHowToBook,
     profilePicturePreview,
@@ -159,6 +162,23 @@ export default function ProfilePage() {
               onChange={(e) => setLocation(e.target.value)}
               placeholder="Downtown, Waterfront"
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="currency">Currency</Label>
+            <Select value={currency} onValueChange={setCurrency}>
+              <SelectTrigger id="currency">
+                <SelectValue placeholder="Select currency" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="EUR">🇪🇺 Euro (€)</SelectItem>
+                <SelectItem value="CHF">🇨🇭 Swiss Franc (CHF)</SelectItem>
+                <SelectItem value="TRY">🇹🇷 Turkish Lira (₺)</SelectItem>
+                <SelectItem value="IDR">🇮🇩 Indonesian Rupiah (Rp)</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              This will be used for all pricing throughout your activity listings and booking confirmations.
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="howToBook">How to Book Instructions</Label>

@@ -1,9 +1,20 @@
+// Based on the 'currencies' table
+export type Currency = {
+  code: string;
+  symbol: string;
+  name: string;
+  decimal_places: number;
+  is_active: boolean;
+  created_at?: string;
+};
+
 // Based on the 'vendors' table from Supabase schema
 export type Vendor = {
   id: string;
   name: string | null;
   description: string | null;
   location: string | null;
+  currency: string; // ISO 4217 currency code
   profile_picture_url: string | null;
   cover_image_url: string | null;
   how_to_book: string | null;
@@ -116,4 +127,11 @@ export interface Lead {
   message?: string
   created_at: string
   updated_at: string
-} 
+}
+
+// Currency context type for React context
+export type CurrencyContextType = {
+  currency: Currency;
+  formatPrice: (price: number) => string;
+  formatCurrency: (amount: number, currencyCode?: string) => string;
+}; 

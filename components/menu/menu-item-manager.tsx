@@ -22,9 +22,11 @@ import { cn } from '@/lib/utils'
 import { EmptyState } from '../ui/empty-state'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { formatTimeWithoutSeconds, formatDurationHours } from '@/lib/utils'
+import { useCurrency } from '@/contexts/CurrencyContext'
 
 export function MenuItemManager() {
   const { loading, categories, groupedItems, addItem, updateItem, deleteItem } = useActivities();
+  const { formatPrice, currency } = useCurrency();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Dialog states
@@ -279,8 +281,8 @@ export function MenuItemManager() {
                             </div>
                             <div className="text-sm text-muted-foreground">
                               {item.activity_type === 'tour' && item.price_per_participant
-                                ? `€${item.price_per_participant.toFixed(2)}/person`
-                                : `€${item.price.toFixed(2)}`}
+                                ? `${formatPrice(item.price_per_participant)}/person`
+                                : formatPrice(item.price)}
                             </div>
                             <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                               {item.activity_type === 'tour' && item.fixed_start_time && (
@@ -469,7 +471,7 @@ export function MenuItemManager() {
 
                     {/* Price per Participant */}
                     <div className="grid gap-2">
-                      <Label htmlFor="price-per-participant" className={cn(validationError === 'price_per_participant' && 'text-destructive')}>Price per Participant (EUR) *</Label>
+                      <Label htmlFor="price-per-participant" className={cn(validationError === 'price_per_participant' && 'text-destructive')}>Price per Participant ({currency.code}) *</Label>
                       <Input 
                         id="price-per-participant"
                         type="number" 
@@ -513,7 +515,7 @@ export function MenuItemManager() {
                   <>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="grid gap-2">
-                        <Label htmlFor="price">Price (EUR) *</Label>
+                        <Label htmlFor="price">Price ({currency.code}) *</Label>
                         <Input 
                           id="price"
                           type="number" 

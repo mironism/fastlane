@@ -22,6 +22,7 @@ import { Card } from '@/components/ui/card'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { formatTimeWithoutSeconds, formatDurationHours } from '@/lib/utils'
+import { useCurrency } from '@/contexts/CurrencyContext'
 
 export function ShoppingCart({
   open,
@@ -34,6 +35,7 @@ export function ShoppingCart({
 }) {
   const { items, removeItem, updateQuantity, totalPrice } = useCartStore()
   const { isSubmitting, handleBooking } = useCheckout()
+  const { formatPrice } = useCurrency()
   
   // Booking form state
   const [bookingDate, setBookingDate] = useState<Date | undefined>(undefined)
@@ -150,8 +152,8 @@ export function ShoppingCart({
                         )}
                         <p className="text-xs text-muted-foreground">
                           {item.activity_type === 'tour' && item.price_per_participant
-                            ? `€${item.price_per_participant.toFixed(2)}/person`
-                            : `€${item.price.toFixed(2)}`}
+                            ? `${formatPrice(item.price_per_participant)}/person`
+                            : formatPrice(item.price)}
                         </p>
                         {item.activity_type === 'tour' && item.fixed_start_time ? (
                           <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
@@ -350,9 +352,9 @@ export function ShoppingCart({
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold text-primary">Total</span>
                 <span className="text-lg font-semibold text-primary">
-                  €{hasTours && firstTour?.price_per_participant 
-                    ? (firstTour.price_per_participant * participantCount).toFixed(2)
-                    : totalPrice().toFixed(2)}
+                  {hasTours && firstTour?.price_per_participant 
+                    ? formatPrice(firstTour.price_per_participant * participantCount)
+                    : formatPrice(totalPrice())}
                 </span>
               </div>
               <Button 

@@ -3,6 +3,7 @@
 import { useCartStore } from '@/hooks/use-cart-store';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, ChevronRight } from 'lucide-react';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface CartIndicatorProps {
   onOpenCart: () => void;
@@ -10,6 +11,7 @@ interface CartIndicatorProps {
 
 export function CartIndicator({ onOpenCart }: CartIndicatorProps) {
   const { items } = useCartStore();
+  const { formatPrice } = useCurrency();
 
   // Don't show if cart is empty
   if (items.length === 0) return null;
@@ -43,7 +45,7 @@ export function CartIndicator({ onOpenCart }: CartIndicatorProps) {
           
           {/* Total Price */}
           <div className="font-semibold text-lg md:text-xl">
-            €{calculateTotalPrice().toFixed(2)}
+            {formatPrice(calculateTotalPrice())}
           </div>
           
           {/* View Cart Button */}

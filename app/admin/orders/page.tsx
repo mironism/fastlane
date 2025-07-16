@@ -10,6 +10,7 @@ import { Calendar, Clock, Users, Mail, MapPin, MessageCircle } from 'lucide-reac
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 import { formatTimeWithoutSeconds } from '@/lib/utils'
+import { CurrencyProvider, useCurrency } from '@/contexts/CurrencyContext'
 
 interface SimpleBooking {
   id: string
@@ -30,6 +31,7 @@ export default function BookingsPage() {
   const [bookings, setBookings] = useState<SimpleBooking[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [vendorCurrency, setVendorCurrency] = useState<string>('EUR')
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -48,7 +50,7 @@ export default function BookingsPage() {
         // Get vendor
         const { data: vendor, error: vendorError } = await supabase
           .from('vendors')
-          .select('id')
+          .select('id, currency')
           .eq('user_id', user.id)
           .single()
         
@@ -57,6 +59,9 @@ export default function BookingsPage() {
           setLoading(false)
           return
         }
+        
+        // Set vendor currency
+        setVendorCurrency(vendor.currency || 'EUR')
         
         // Get bookings
         const { data, error: bookingsError } = await supabase
@@ -124,6 +129,8 @@ export default function BookingsPage() {
   }
 
   const BookingCard = ({ booking }: { booking: SimpleBooking }) => {
+    const { formatPrice } = useCurrency();
+    
     // Parse booking details
     const details = typeof booking.booking_details === 'string' 
       ? JSON.parse(booking.booking_details) 
@@ -209,7 +216,7 @@ export default function BookingsPage() {
             {/* Price and Actions */}
             <div className="flex justify-between items-center pt-2 border-t">
               <div className="text-xl font-bold">
-                €{booking.total_price?.toFixed(2) || '0.00'}
+                {formatPrice(booking.total_price || 0)}
               </div>
               <div className="flex gap-2">
                 {booking.is_fulfilled ? (
@@ -272,13 +279,14 @@ export default function BookingsPage() {
   const completedBookings = bookings.filter(b => b.is_fulfilled)
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Bookings</h1>
-        <p className="text-muted-foreground">
-          Manage your activity bookings and customer requests
-        </p>
-      </div>
+    <CurrencyProvider currencyCode={vendorCurrency}>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Bookings</h1>
+          <p className="text-muted-foreground">
+            Manage your activity bookings and customer requests
+          </p>
+        </div>
 
       <Tabs defaultValue="active" className="space-y-4">
         <TabsList>
@@ -331,5 +339,6 @@ export default function BookingsPage() {
         </TabsContent>
       </Tabs>
     </div>
+    </CurrencyProvider>
   )
 } 

@@ -18,6 +18,7 @@ export function useVendor(vendorId: string) {
           name,
           description,
           location,
+          currency,
           profile_picture_url,
           cover_image_url,
           how_to_book,
