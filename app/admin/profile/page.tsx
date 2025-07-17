@@ -23,6 +23,10 @@ export default function ProfilePage() {
     setCurrency,
     howToBook,
     setHowToBook,
+    slug,
+    setSlug,
+    slugError,
+    generateSlugFromName,
     profilePicturePreview,
     coverImagePreview,
     isLoading,
@@ -144,6 +148,39 @@ export default function ProfilePage() {
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., The Tipsy Turtle Bar"
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="slug">Custom URL</Label>
+            <div className="flex space-x-2">
+              <div className="flex-1">
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                    fast-lane.tech/
+                  </span>
+                  <Input
+                    id="slug"
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value)}
+                    placeholder="your-business-name"
+                    className="rounded-l-none"
+                  />
+                </div>
+                {slugError && (
+                  <p className="text-sm text-red-500 mt-1">{slugError}</p>
+                )}
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={generateSlugFromName}
+                className="shrink-0"
+              >
+                Generate
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              This will be your custom URL. Only lowercase letters, numbers, and hyphens are allowed.
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>

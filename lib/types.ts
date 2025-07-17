@@ -19,6 +19,7 @@ export type Vendor = {
   cover_image_url: string | null;
   how_to_book: string | null;
   user_id: string;
+  slug: string | null; // Custom URL slug
   created_at: string;
 };
 

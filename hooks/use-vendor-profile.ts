@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { Vendor } from '@/lib/types';
+import { validateSlug, generateSlugSuggestion } from '@/lib/slug-utils';
 
 export function useVendorProfile() {
   const router = useRouter();
@@ -18,6 +19,8 @@ export function useVendorProfile() {
   const [location, setLocation] = useState('');
   const [currency, setCurrency] = useState('EUR');
   const [howToBook, setHowToBook] = useState('');
+  const [slug, setSlug] = useState('');
+  const [slugError, setSlugError] = useState<string | null>(null);
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
   const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
@@ -53,6 +56,7 @@ export function useVendorProfile() {
         setLocation(data.location || '');
         setCurrency(data.currency || 'EUR');
         setHowToBook(data.how_to_book || '');
+        setSlug(data.slug || '');
         setProfilePicturePreview(data.profile_picture_url || null);
         setCoverImagePreview(data.cover_image_url || null);
       }
@@ -94,6 +98,43 @@ export function useVendorProfile() {
     }
   };
 
+  const handleSlugChange = (value: string) => {
+    setSlug(value);
+    
+    // Validate slug in real-time
+    const validation = validateSlug(value);
+    setSlugError(validation.isValid ? null : validation.error || null);
+  };
+
+  const generateSlugFromName = () => {
+    if (!name.trim()) {
+      toast.error('Please enter a business name first');
+      return;
+    }
+    
+    const suggestion = generateSlugSuggestion(name);
+    setSlug(suggestion);
+    setSlugError(null);
+  };
+
+  const checkSlugAvailability = async (slugToCheck: string) => {
+    if (!slugToCheck || slugToCheck === vendor?.slug) return true;
+    
+    const { data, error } = await supabase
+      .from('vendors')
+      .select('id')
+      .eq('slug', slugToCheck)
+      .neq('id', vendor?.id || '')
+      .single();
+    
+    if (error && error.code === 'PGRST116') {
+      // No rows found, slug is available
+      return true;
+    }
+    
+    return !data; // If data exists, slug is taken
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsSaving(true);
@@ -102,6 +143,24 @@ export function useVendorProfile() {
       toast.error("Vendor data not found. Cannot update.");
       setIsSaving(false);
       return;
+    }
+
+    // Validate slug before saving
+    if (slug) {
+      const validation = validateSlug(slug);
+      if (!validation.isValid) {
+        setSlugError(validation.error || 'Invalid slug');
+        setIsSaving(false);
+        return;
+      }
+
+      // Check if slug is available
+      const isAvailable = await checkSlugAvailability(slug);
+      if (!isAvailable) {
+        setSlugError('This URL is already taken. Please choose a different one.');
+        setIsSaving(false);
+        return;
+      }
     }
 
     let profilePictureUrl = vendor.profile_picture_url;
@@ -155,6 +214,7 @@ export function useVendorProfile() {
         location,
         currency,
         how_to_book: howToBook,
+        slug: slug || null,
         profile_picture_url: profilePictureUrl,
         cover_image_url: coverImageUrl,
       })
@@ -183,6 +243,10 @@ export function useVendorProfile() {
     setCurrency,
     howToBook,
     setHowToBook,
+    slug,
+    setSlug: handleSlugChange,
+    slugError,
+    generateSlugFromName,
     profilePicturePreview,
     coverImagePreview,
     isLoading,

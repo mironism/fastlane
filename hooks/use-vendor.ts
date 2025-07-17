@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { VendorWithMenu } from '@/lib/types';
+import { isUUID } from '@/lib/slug-utils';
 
-export function useVendor(vendorId: string) {
+export function useVendor(vendorIdOrSlug: string) {
   const [vendor, setVendor] = useState<VendorWithMenu | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     async function fetchVendorData() {
-    
+      // Determine if we're looking up by UUID or slug
+      const isLookupByUUID = isUUID(vendorIdOrSlug);
+      const lookupField = isLookupByUUID ? 'id' : 'slug';
 
       const { data, error } = await supabase
         .from('vendors')
@@ -23,6 +26,7 @@ export function useVendor(vendorId: string) {
           cover_image_url,
           how_to_book,
           user_id,
+          slug,
           created_at,
           categories (
             id,
@@ -48,7 +52,7 @@ export function useVendor(vendorId: string) {
             )
           )
         `)
-        .eq('id', vendorId)
+        .eq(lookupField, vendorIdOrSlug)
         .single();
 
       if (error || !data) {
@@ -71,7 +75,7 @@ export function useVendor(vendorId: string) {
     }
 
     fetchVendorData();
-  }, [vendorId]);
+  }, [vendorIdOrSlug]);
 
   return { vendor, loading, error };
 } 

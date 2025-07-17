@@ -15,10 +15,13 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
+import { getFullVendorUrl } from "@/lib/vendor-url";
 
 export default function HomePage() {
   const [vendorUrl, setVendorUrl] = useState('');
+  const [customUrl, setCustomUrl] = useState('');
   const [isCopied, setIsCopied] = useState(false);
+  const [isCustomCopied, setIsCustomCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -33,14 +36,21 @@ export default function HomePage() {
         
         const { data: vendor, error } = await supabase
           .from('vendors')
-          .select('id')
+          .select('id, slug')
           .eq('user_id', user.id)
           .single();
 
         if (vendor) {
           // Get the base URL - works for localhost and Vercel
           const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+          
+          // Set UUID-based URL (original)
           setVendorUrl(`${baseUrl}/vendor/${vendor.id}`);
+          
+          // Set custom slug URL if slug exists
+          if (vendor.slug) {
+            setCustomUrl(`${baseUrl}/vendor/${vendor.slug}`);
+          }
         } else if (error) {
           console.error("Error fetching vendor ID:", error.message);
           console.log("Creating vendor profile...");
@@ -52,12 +62,20 @@ export default function HomePage() {
               user_id: user.id,
               name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'New Vendor'
             })
-            .select('id')
+            .select('id, slug')
             .single();
             
           if (newVendor) {
             const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+            
+            // Set UUID-based URL (original)
             setVendorUrl(`${baseUrl}/vendor/${newVendor.id}`);
+            
+            // Set custom slug URL if slug exists
+            if (newVendor.slug) {
+              setCustomUrl(`${baseUrl}/vendor/${newVendor.slug}`);
+            }
+            
             console.log("Vendor profile created successfully!");
           } else {
             console.error("Failed to create vendor profile:", createError?.message);
@@ -76,6 +94,15 @@ export default function HomePage() {
     setIsCopied(true);
     setTimeout(() => {
       setIsCopied(false);
+    }, 2500);
+  };
+
+  const handleCustomCopy = () => {
+    if (!customUrl) return;
+    navigator.clipboard.writeText(customUrl);
+    setIsCustomCopied(true);
+    setTimeout(() => {
+      setIsCustomCopied(false);
     }, 2500);
   };
 
@@ -128,22 +155,59 @@ export default function HomePage() {
         
         <div className="space-y-4 border-t pt-6">
           <div className="space-y-2">
-            <h3 className="font-semibold">Your Public Link</h3>
+            <h3 className="font-semibold">Your Public Links</h3>
             <p className="text-sm text-muted-foreground">
-              Share this link with your customers so they can view your activities and make bookings.
+              Share these links with your customers so they can view your activities and make bookings.
             </p>
           </div>
-          <div className="flex items-center space-x-2">
-            {isLoading ? (
-              <Skeleton className="h-10 flex-1" />
-            ) : (
-              <Input value={vendorUrl} readOnly className="flex-1" />
-            )}
-            <Button variant="secondary" size="icon" onClick={handleCopy} disabled={isLoading || !vendorUrl}>
-              <span className="sr-only">Copy</span>
-              {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            </Button>
+          
+          {/* Original UUID-based URL */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">Original Link</label>
+            <div className="flex items-center space-x-2">
+              {isLoading ? (
+                <Skeleton className="h-10 flex-1" />
+              ) : (
+                <Input value={vendorUrl} readOnly className="flex-1" />
+              )}
+              <Button variant="secondary" size="icon" onClick={handleCopy} disabled={isLoading || !vendorUrl}>
+                <span className="sr-only">Copy</span>
+                {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              </Button>
+            </div>
           </div>
+
+          {/* Custom slug URL */}
+          {customUrl && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground">Custom Link</label>
+              <div className="flex items-center space-x-2">
+                <Input value={customUrl} readOnly className="flex-1" />
+                <Button variant="secondary" size="icon" onClick={handleCustomCopy} disabled={!customUrl}>
+                  <span className="sr-only">Copy</span>
+                  {isCustomCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                ✨ This is your custom branded URL! Update it in your Profile settings.
+              </p>
+            </div>
+          )}
+          
+          {!customUrl && !isLoading && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground">Custom Link</label>
+              <div className="flex items-center space-x-2">
+                <Input value="Not set up yet" readOnly className="flex-1 text-muted-foreground" />
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/admin/profile">Set Up</Link>
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Create a custom branded URL in your Profile settings.
+              </p>
+            </div>
+          )}
         </div>
 
         <p className="text-sm text-muted-foreground">

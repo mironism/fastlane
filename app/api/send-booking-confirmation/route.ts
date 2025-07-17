@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { formatCurrency } from '@/lib/currency';
+import { getFullVendorUrl } from '@/lib/vendor-url';
 
 interface BookingEmailRequest {
   bookingId: string;
